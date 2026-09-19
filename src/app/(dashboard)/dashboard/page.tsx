@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTenantContext } from "@/lib/tenant";
 import { rawPrisma } from "@/lib/prisma";
 import { getMemberStatusCounts, listRecentMembers } from "@/features/members/queries";
+import { countTodayAttendance } from "@/features/attendance/queries";
 import { KpiTile } from "@/components/kpi-tile";
 import { MemberStatusBadge } from "@/components/member-status-badge";
 
@@ -15,10 +16,11 @@ function greeting(): string {
 export default async function DashboardPage() {
   const ctx = await getTenantContext();
 
-  const [branchCount, counts, recentMembers] = await Promise.all([
+  const [branchCount, counts, recentMembers, todayCheckIns] = await Promise.all([
     rawPrisma.branch.count({ where: { organizationId: ctx.organizationId } }),
     getMemberStatusCounts(),
     listRecentMembers(5),
+    countTodayAttendance(),
   ]);
 
   return (
@@ -30,7 +32,7 @@ export default async function DashboardPage() {
         <h1 className="mt-1.5 text-[26px] font-bold tracking-tight">{greeting()}.</h1>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <KpiTile
           label="Total members"
           value={String(counts.total)}
@@ -40,6 +42,7 @@ export default async function DashboardPage() {
         <KpiTile label="Active" value={String(counts.ACTIVE)} hint="Currently training" />
         <KpiTile label="Frozen" value={String(counts.FROZEN)} hint="Paused memberships" />
         <KpiTile label="Inactive" value={String(counts.INACTIVE)} hint="Not currently training" />
+        <KpiTile label="Check-ins today" value={String(todayCheckIns)} hint="Across all branches" />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -80,9 +83,9 @@ export default async function DashboardPage() {
         <div className="rounded-2xl border border-dashed border-border bg-card p-4.5">
           <div className="text-[14.5px] font-semibold">Coming up next</div>
           <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
-            Memberships, attendance, payments, and CRM modules land here as they&apos;re built. Revenue and
-            check-in KPIs will appear on this dashboard once those modules exist &mdash; nothing shown above
-            is placeholder data.
+            Payments, reports, notifications, and CRM modules land here as they&apos;re built. Revenue
+            KPIs will appear on this dashboard once billing exists &mdash; nothing shown above is
+            placeholder data.
           </p>
         </div>
       </div>

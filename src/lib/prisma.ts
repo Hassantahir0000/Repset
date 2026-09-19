@@ -30,7 +30,7 @@ export type TenantContext = {
 // the whole org). Add an entry here whenever a new tenant-owned model is
 // introduced.
 const ORG_ONLY_MODELS = new Set(["Branch", "User"]);
-const ORG_AND_BRANCH_MODELS = new Set(["Member", "Membership"]);
+const ORG_AND_BRANCH_MODELS = new Set(["Member", "Membership", "Attendance"]);
 const ORG_AND_OPTIONAL_BRANCH_MODELS = new Set(["MembershipPlan"]);
 
 function scopeWhere(

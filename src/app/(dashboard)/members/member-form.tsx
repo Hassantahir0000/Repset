@@ -3,6 +3,17 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createMember, updateMember } from "@/features/members/actions";
+import { FormField } from "@/components/form-field";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Branch = { id: string; name: string };
 
@@ -88,146 +99,159 @@ export function MemberForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="flex items-center gap-4">
-        {form.photoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={form.photoUrl} alt="" className="h-16 w-16 rounded-full object-cover" />
-        ) : (
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 text-xs text-gray-500">
-            No photo
+    <Card>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex items-center gap-4">
+            {form.photoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={form.photoUrl} alt="" className="h-16 w-16 rounded-xl object-cover" />
+            ) : (
+              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-secondary text-xs text-muted-foreground">
+                No photo
+              </div>
+            )}
+            <div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="text-sm text-muted-foreground"
+              />
+              {photoError && <p className="mt-1 text-xs text-destructive">{photoError}</p>}
+            </div>
           </div>
-        )}
-        <div>
-          <input type="file" accept="image/*" onChange={handlePhotoChange} className="text-sm" />
-          {photoError && <p className="text-xs text-red-600">{photoError}</p>}
-        </div>
-      </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Branch</label>
-        <select
-          required
-          value={form.branchId}
-          onChange={(e) => setForm((f) => ({ ...f, branchId: e.target.value }))}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
-        >
-          <option value="" disabled>
-            Select a branch
-          </option>
-          {branches.map((b) => (
-            <option key={b.id} value={b.id}>
-              {b.name}
-            </option>
-          ))}
-        </select>
-      </div>
+          <FormField label="Branch">
+            {() => (
+              <Select value={form.branchId} onValueChange={(v) => setForm((f) => ({ ...f, branchId: v }))}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a branch" />
+                </SelectTrigger>
+                <SelectContent>
+                  {branches.map((b) => (
+                    <SelectItem key={b.id} value={b.id}>
+                      {b.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </FormField>
 
-      <div className="grid grid-cols-2 gap-3">
-        <TextField
-          label="First name"
-          value={form.firstName}
-          onChange={(v) => setForm((f) => ({ ...f, firstName: v }))}
-        />
-        <TextField
-          label="Last name"
-          value={form.lastName}
-          onChange={(v) => setForm((f) => ({ ...f, lastName: v }))}
-        />
-      </div>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="First name">
+              {(id) => (
+                <Input
+                  id={id}
+                  required
+                  value={form.firstName}
+                  onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))}
+                />
+              )}
+            </FormField>
+            <FormField label="Last name">
+              {(id) => (
+                <Input
+                  id={id}
+                  required
+                  value={form.lastName}
+                  onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))}
+                />
+              )}
+            </FormField>
+          </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <TextField
-          label="Phone"
-          value={form.phone}
-          onChange={(v) => setForm((f) => ({ ...f, phone: v }))}
-        />
-        <TextField
-          label="Email (optional)"
-          type="email"
-          value={form.email}
-          onChange={(v) => setForm((f) => ({ ...f, email: v }))}
-        />
-      </div>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Phone">
+              {(id) => (
+                <Input
+                  id={id}
+                  required
+                  value={form.phone}
+                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                />
+              )}
+            </FormField>
+            <FormField label="Email (optional)">
+              {(id) => (
+                <Input
+                  id={id}
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                />
+              )}
+            </FormField>
+          </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <TextField
-          label="Date of birth (optional)"
-          type="date"
-          value={form.dateOfBirth}
-          onChange={(v) => setForm((f) => ({ ...f, dateOfBirth: v }))}
-        />
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Gender (optional)</label>
-          <select
-            value={form.gender}
-            onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value as MemberFormValues["gender"] }))}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
-          >
-            <option value="">—</option>
-            <option value="MALE">Male</option>
-            <option value="FEMALE">Female</option>
-            <option value="OTHER">Other</option>
-          </select>
-        </div>
-      </div>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label="Date of birth (optional)">
+              {(id) => (
+                <Input
+                  id={id}
+                  type="date"
+                  value={form.dateOfBirth}
+                  onChange={(e) => setForm((f) => ({ ...f, dateOfBirth: e.target.value }))}
+                />
+              )}
+            </FormField>
+            <FormField label="Gender (optional)">
+              {() => (
+                <Select
+                  value={form.gender || undefined}
+                  onValueChange={(v) => setForm((f) => ({ ...f, gender: v as MemberFormValues["gender"] }))}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="—" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MALE">Male</SelectItem>
+                    <SelectItem value="FEMALE">Female</SelectItem>
+                    <SelectItem value="OTHER">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            </FormField>
+          </div>
 
-      <TextField
-        label="Address (optional)"
-        value={form.address}
-        onChange={(v) => setForm((f) => ({ ...f, address: v }))}
-      />
+          <FormField label="Address (optional)">
+            {(id) => (
+              <Input
+                id={id}
+                value={form.address}
+                onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+              />
+            )}
+          </FormField>
 
-      {memberId && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Status</label>
-          <select
-            value={form.status}
-            onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as MemberFormValues["status"] }))}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
-          >
-            <option value="ACTIVE">Active</option>
-            <option value="INACTIVE">Inactive</option>
-            <option value="FROZEN">Frozen</option>
-          </select>
-        </div>
-      )}
+          {memberId && (
+            <FormField label="Status">
+              {() => (
+                <Select
+                  value={form.status}
+                  onValueChange={(v) => setForm((f) => ({ ...f, status: v as MemberFormValues["status"] }))}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ACTIVE">Active</SelectItem>
+                    <SelectItem value="INACTIVE">Inactive</SelectItem>
+                    <SelectItem value="FROZEN">Frozen</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            </FormField>
+          )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
-      >
-        {isSubmitting ? "Saving..." : memberId ? "Save changes" : "Add member"}
-      </button>
-    </form>
-  );
-}
-
-function TextField({
-  label,
-  value,
-  onChange,
-  type = "text",
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-}) {
-  const required = !label.includes("optional");
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
-      <input
-        type={type}
-        required={required}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
-      />
-    </div>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : memberId ? "Save changes" : "Add member"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

@@ -3,6 +3,10 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { updateOrganization } from "@/features/organizations/actions";
+import { FormField } from "@/components/form-field";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function OrganizationSettingsForm({
   organization,
@@ -33,53 +37,54 @@ export function OrganizationSettingsForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-sm space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Organization name</label>
-        <input
-          type="text"
-          required
-          value={form.name}
-          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
-        />
-      </div>
+    <Card>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <FormField label="Organization name">
+            {(id) => (
+              <Input
+                id={id}
+                required
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              />
+            )}
+          </FormField>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Timezone</label>
-        <input
-          type="text"
-          required
-          value={form.timezone}
-          onChange={(e) => setForm((f) => ({ ...f, timezone: e.target.value }))}
-          placeholder="e.g. Asia/Karachi"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
-        />
-      </div>
+          <FormField label="Timezone">
+            {(id) => (
+              <Input
+                id={id}
+                required
+                placeholder="e.g. Asia/Karachi"
+                value={form.timezone}
+                onChange={(e) => setForm((f) => ({ ...f, timezone: e.target.value }))}
+              />
+            )}
+          </FormField>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Currency</label>
-        <input
-          type="text"
-          required
-          maxLength={3}
-          value={form.currency}
-          onChange={(e) => setForm((f) => ({ ...f, currency: e.target.value.toUpperCase() }))}
-          placeholder="e.g. PKR"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm uppercase focus:border-gray-900 focus:outline-none"
-        />
-      </div>
+          <FormField label="Currency">
+            {(id) => (
+              <Input
+                id={id}
+                required
+                maxLength={3}
+                placeholder="e.g. PKR"
+                className="uppercase"
+                value={form.currency}
+                onChange={(e) => setForm((f) => ({ ...f, currency: e.target.value.toUpperCase() }))}
+              />
+            )}
+          </FormField>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      {saved && !error && <p className="text-sm text-green-600">Saved.</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          {saved && !error && <p className="text-sm text-[#1F7A4D]">Saved.</p>}
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
-      >
-        {isSubmitting ? "Saving..." : "Save changes"}
-      </button>
-    </form>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : "Save changes"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getMember } from "@/features/members/queries";
 import { listAssignableBranches } from "@/features/branches/queries";
 import { MemberForm } from "../member-form";
+import { PageHeader } from "@/components/page-header";
 
 export default async function MemberDetailPage({
   params,
@@ -21,13 +22,8 @@ export default async function MemberDetailPage({
     : [{ id: member.branch.id, name: member.branch.name }, ...branches];
 
   return (
-    <div className="max-w-lg space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold text-gray-900">
-          {member.firstName} {member.lastName}
-        </h1>
-        <p className="text-sm text-gray-500">{member.memberCode}</p>
-      </div>
+    <div className="max-w-lg space-y-5">
+      <PageHeader title={`${member.firstName} ${member.lastName}`} description={member.memberCode} />
 
       <MemberForm
         branches={branchOptions}

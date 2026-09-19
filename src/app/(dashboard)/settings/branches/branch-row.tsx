@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateBranch } from "@/features/branches/actions";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export function BranchRow({
   branch,
@@ -26,29 +28,21 @@ export function BranchRow({
   }
 
   return (
-    <li className="flex items-center justify-between px-4 py-3">
+    <li className="flex items-center justify-between px-4.5 py-3">
       <div>
-        <p className="text-sm font-medium text-gray-900">{branch.name}</p>
-        <p className="text-xs text-gray-500">
+        <p className="text-sm font-medium">{branch.name}</p>
+        <p className="text-xs text-muted-foreground">
           {[branch.address, branch.phone].filter(Boolean).join(" · ") || "No address/phone on file"}
         </p>
-        {error && <p className="text-xs text-red-600">{error}</p>}
+        {error && <p className="text-xs text-destructive">{error}</p>}
       </div>
       <div className="flex items-center gap-3">
-        <span
-          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-            branch.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
-          }`}
-        >
+        <Badge variant={branch.isActive ? "success" : "secondary"}>
           {branch.isActive ? "Active" : "Inactive"}
-        </span>
-        <button
-          onClick={toggleActive}
-          disabled={isPending}
-          className="text-sm text-gray-500 underline hover:text-gray-900 disabled:opacity-50"
-        >
+        </Badge>
+        <Button variant="ghost" size="sm" onClick={toggleActive} disabled={isPending}>
           {branch.isActive ? "Deactivate" : "Activate"}
-        </button>
+        </Button>
       </div>
     </li>
   );

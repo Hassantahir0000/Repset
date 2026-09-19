@@ -3,6 +3,8 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createBranch } from "@/features/branches/actions";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export function NewBranchForm() {
   const router = useRouter();
@@ -28,38 +30,28 @@ export function NewBranchForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <input
-        type="text"
+      <Input
         required
         placeholder="Branch name"
         value={form.name}
         onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-        className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
       />
-      <input
-        type="text"
+      <Input
         placeholder="Address (optional)"
         value={form.address}
         onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-        className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
       />
-      <input
-        type="text"
+      <Input
         placeholder="Phone (optional)"
         value={form.phone}
         onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-        className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
       />
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
-      >
+      <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Adding..." : "Add branch"}
-      </button>
+      </Button>
     </form>
   );
 }

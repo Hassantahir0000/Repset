@@ -1,12 +1,14 @@
-export function MemberSearch({ defaultValue }: { defaultValue: string }) {
+import { Input } from "@/components/ui/input";
+
+export function MemberSearch({ defaultValue, status }: { defaultValue: string; status: string }) {
   return (
-    <form method="GET" action="/members" className="max-w-sm">
-      <input
+    <form method="GET" action="/members" className="min-w-[220px] flex-1 sm:max-w-xs">
+      {status && <input type="hidden" name="status" value={status} />}
+      <Input
         type="search"
         name="q"
         defaultValue={defaultValue}
-        placeholder="Search by name, phone, email, or code"
-        className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
+        placeholder="Search name, phone, email, or code"
       />
     </form>
   );

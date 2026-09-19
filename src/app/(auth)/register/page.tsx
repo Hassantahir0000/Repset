@@ -5,6 +5,10 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createOrganizationWithOwner } from "@/features/organizations/actions";
+import { FormField } from "@/components/form-field";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -52,63 +56,63 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
+    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-gray-900">Create your gym</h1>
-          <p className="mt-1 text-sm text-gray-500">Sets up your organization, first branch, and owner account</p>
+          <div className="mx-auto mb-3 h-8 w-8 rounded-lg bg-primary shadow-[0_6px_18px_-6px_rgba(232,70,42,0.8)]" />
+          <h1 className="text-2xl font-bold tracking-tight">Create your gym</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Sets up your organization, first branch, and owner account
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Field label="Gym / organization name" value={form.organizationName} onChange={update("organizationName")} />
-          <Field label="First branch name" value={form.branchName} onChange={update("branchName")} />
-          <Field label="Your name" value={form.ownerName} onChange={update("ownerName")} />
-          <Field label="Email" type="email" value={form.ownerEmail} onChange={update("ownerEmail")} />
-          <Field label="Password" type="password" value={form.ownerPassword} onChange={update("ownerPassword")} />
+        <Card>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <FormField label="Gym / organization name">
+                {(id) => (
+                  <Input id={id} required value={form.organizationName} onChange={update("organizationName")} />
+                )}
+              </FormField>
+              <FormField label="First branch name">
+                {(id) => <Input id={id} required value={form.branchName} onChange={update("branchName")} />}
+              </FormField>
+              <FormField label="Your name">
+                {(id) => <Input id={id} required value={form.ownerName} onChange={update("ownerName")} />}
+              </FormField>
+              <FormField label="Email">
+                {(id) => (
+                  <Input id={id} type="email" required value={form.ownerEmail} onChange={update("ownerEmail")} />
+                )}
+              </FormField>
+              <FormField label="Password">
+                {(id) => (
+                  <Input
+                    id={id}
+                    type="password"
+                    required
+                    value={form.ownerPassword}
+                    onChange={update("ownerPassword")}
+                  />
+                )}
+              </FormField>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+              {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
-          >
-            {isSubmitting ? "Creating..." : "Create organization"}
-          </button>
-        </form>
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Creating..." : "Create organization"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
-        <p className="text-center text-sm text-gray-500">
+        <p className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-gray-900 underline">
+          <Link href="/login" className="font-medium text-primary hover:underline">
             Sign in
           </Link>
         </p>
       </div>
     </main>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  type = "text",
-}: {
-  label: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  type?: string;
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
-      <input
-        type={type}
-        required
-        value={value}
-        onChange={onChange}
-        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
-      />
-    </div>
   );
 }

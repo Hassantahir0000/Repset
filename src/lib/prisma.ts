@@ -24,10 +24,14 @@ export type TenantContext = {
   accessibleBranchIds: string[];
 };
 
-// Models scoped by organizationId only, vs. organizationId + branchId.
-// Add an entry here whenever a new tenant-owned model is introduced.
+// Models scoped by organizationId only, organizationId + required branchId,
+// or organizationId + optional branchId (org-wide records mixed with
+// branch-specific ones, e.g. a MembershipPlan available to one branch or
+// the whole org). Add an entry here whenever a new tenant-owned model is
+// introduced.
 const ORG_ONLY_MODELS = new Set(["Branch", "User"]);
-const ORG_AND_BRANCH_MODELS = new Set(["Member"]);
+const ORG_AND_BRANCH_MODELS = new Set(["Member", "Membership"]);
+const ORG_AND_OPTIONAL_BRANCH_MODELS = new Set(["MembershipPlan"]);
 
 function scopeWhere(
   model: string,
@@ -39,6 +43,16 @@ function scopeWhere(
       ...where,
       organizationId: ctx.organizationId,
       branchId: { in: ctx.accessibleBranchIds },
+    };
+  }
+  if (ORG_AND_OPTIONAL_BRANCH_MODELS.has(model)) {
+    // NOTE: this overwrites a caller-supplied top-level `where.OR` (there's
+    // no current caller that needs one alongside branch scoping). If that
+    // changes, this needs to AND the two OR clauses instead of clobbering.
+    return {
+      ...where,
+      organizationId: ctx.organizationId,
+      OR: [{ branchId: null }, { branchId: { in: ctx.accessibleBranchIds } }],
     };
   }
   if (ORG_ONLY_MODELS.has(model)) {
@@ -69,6 +83,18 @@ function scopeCreateData(model: string, data: unknown, ctx: TenantContext): unkn
     return { ...data, organizationId: ctx.organizationId };
   }
 
+  if (ORG_AND_OPTIONAL_BRANCH_MODELS.has(model)) {
+    // branchId may be omitted/null (an org-wide record), but if given it
+    // must be one of the caller's accessible branches.
+    const branchId = (data as { branchId?: string | null }).branchId;
+    if (branchId && !ctx.accessibleBranchIds.includes(branchId)) {
+      throw new TenantScopeViolationError(
+        `branchId "${branchId}" is not one of the caller's accessible branches`,
+      );
+    }
+    return { ...data, organizationId: ctx.organizationId };
+  }
+
   if (ORG_ONLY_MODELS.has(model)) {
     return { ...data, organizationId: ctx.organizationId };
   }
@@ -91,7 +117,10 @@ export function tenantDb(ctx: TenantContext) {
     query: {
       $allModels: {
         async $allOperations({ model, operation, args, query }) {
-          const isScoped = ORG_ONLY_MODELS.has(model) || ORG_AND_BRANCH_MODELS.has(model);
+          const isScoped =
+            ORG_ONLY_MODELS.has(model) ||
+            ORG_AND_BRANCH_MODELS.has(model) ||
+            ORG_AND_OPTIONAL_BRANCH_MODELS.has(model);
           if (!isScoped) return query(args);
 
           // `mutable` aliases the same object as `args`; mutating it in place

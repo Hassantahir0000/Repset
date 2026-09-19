@@ -7,6 +7,7 @@ export type Permission =
   | "user:manage"
   | "member:view"
   | "member:manage"
+  | "membership-plan:manage"
   | "membership:manage"
   | "attendance:record"
   | "billing:manage"
@@ -20,6 +21,7 @@ const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "user:manage",
     "member:view",
     "member:manage",
+    "membership-plan:manage",
     "membership:manage",
     "attendance:record",
     "billing:manage",
@@ -31,6 +33,7 @@ const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "user:manage",
     "member:view",
     "member:manage",
+    "membership-plan:manage",
     "membership:manage",
     "attendance:record",
     "billing:manage",

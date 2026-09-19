@@ -17,6 +17,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/settings/organization", label: "Organization" },
       { href: "/settings/branches", label: "Branches" },
+      { href: "/settings/membership-plans", label: "Membership Plans" },
     ],
   },
 ];

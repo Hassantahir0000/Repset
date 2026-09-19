@@ -35,9 +35,11 @@ model Organization {
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
 
-  branches Branch[]
-  users    User[]
-  members  Member[]
+  branches        Branch[]
+  users           User[]
+  members         Member[]
+  membershipPlans MembershipPlan[]
+  memberships     Membership[]
 
   @@map("organizations")
 }
@@ -52,9 +54,11 @@ model Branch {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  users        User[]
-  members      Member[]
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  users           User[]
+  members         Member[]
+  membershipPlans MembershipPlan[]
+  memberships     Membership[]
 
   @@index([organizationId])
   @@map("branches")
@@ -130,11 +134,82 @@ model Member {
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   branch       Branch       @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  memberships  Membership[]
 
   @@unique([organizationId, memberCode])
   @@index([organizationId])
   @@index([organizationId, branchId])
   @@map("members")
+}
+
+// ---------------------------------------------------------------------------
+// Memberships
+// ---------------------------------------------------------------------------
+
+enum MembershipDurationType {
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+  CUSTOM
+}
+
+// branchId is nullable here (a plan can be org-wide or scoped to one branch),
+// unlike Member/Membership where a branch is always required.
+model MembershipPlan {
+  id              String                 @id @default(cuid())
+  organizationId  String
+  branchId        String?
+  name            String
+  durationType    MembershipDurationType
+  durationDays    Int
+  price           Decimal                @db.Decimal(10, 2)
+  registrationFee Decimal                @default(0) @db.Decimal(10, 2)
+  isActive        Boolean                @default(true)
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branch       Branch?      @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  memberships  Membership[]
+
+  @@index([organizationId])
+  @@index([organizationId, branchId])
+  @@map("membership_plans")
+}
+
+enum MembershipStatus {
+  PENDING
+  ACTIVE
+  FROZEN
+  EXPIRED
+  CANCELLED
+}
+
+model Membership {
+  id              String           @id @default(cuid())
+  organizationId  String
+  branchId        String
+  memberId        String
+  planId          String
+  status          MembershipStatus @default(ACTIVE)
+  startDate       DateTime
+  endDate         DateTime
+  autoRenew       Boolean          @default(false)
+  priceAtPurchase Decimal          @db.Decimal(10, 2)
+  frozenAt        DateTime?
+  freezeResumeAt  DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branch       Branch         @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  member       Member         @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  plan         MembershipPlan @relation(fields: [planId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+  @@index([organizationId, branchId])
+  @@index([memberId])
+  @@map("memberships")
 }
 
 // ---------------------------------------------------------------------------

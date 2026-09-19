@@ -37,6 +37,7 @@ model Organization {
 
   branches Branch[]
   users    User[]
+  members  Member[]
 
   @@map("organizations")
 }
@@ -53,6 +54,7 @@ model Branch {
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   users        User[]
+  members      Member[]
 
   @@index([organizationId])
   @@map("branches")
@@ -90,6 +92,49 @@ model User {
   @@index([organizationId])
   @@index([organizationId, branchId])
   @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// Members
+// ---------------------------------------------------------------------------
+
+enum MemberStatus {
+  ACTIVE
+  INACTIVE
+  FROZEN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+model Member {
+  id             String       @id @default(cuid())
+  organizationId String
+  branchId       String
+  memberCode     String
+  firstName      String
+  lastName       String
+  email          String?
+  phone          String
+  dateOfBirth    DateTime?
+  gender         Gender?
+  address        String?
+  photoUrl       String?      @db.Text
+  status         MemberStatus @default(ACTIVE)
+  joinedAt       DateTime     @default(now())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  branch       Branch       @relation(fields: [branchId], references: [id], onDelete: Restrict)
+
+  @@unique([organizationId, memberCode])
+  @@index([organizationId])
+  @@index([organizationId, branchId])
+  @@map("members")
 }
 
 // ---------------------------------------------------------------------------

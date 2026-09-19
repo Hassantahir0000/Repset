@@ -33,8 +33,10 @@ describe("tenant isolation: branches", () => {
 
   afterAll(async () => {
     // Cascades delete the branches (and would cascade users, if any were created).
+    // Deliberately not calling rawPrisma.$disconnect() here: the client is a
+    // process-wide singleton shared with other test files running in the
+    // same worker, so disconnecting it here would break their queries too.
     await rawPrisma.organization.deleteMany({ where: { id: { in: [orgA.id, orgB.id] } } });
-    await rawPrisma.$disconnect();
   });
 
   it("findMany only returns the caller's own organization's branches", async () => {

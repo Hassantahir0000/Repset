@@ -27,7 +27,7 @@ export type TenantContext = {
 // Models scoped by organizationId only, vs. organizationId + branchId.
 // Add an entry here whenever a new tenant-owned model is introduced.
 const ORG_ONLY_MODELS = new Set(["Branch", "User"]);
-const ORG_AND_BRANCH_MODELS = new Set<string>([]);
+const ORG_AND_BRANCH_MODELS = new Set(["Member"]);
 
 function scopeWhere(
   model: string,
@@ -47,14 +47,32 @@ function scopeWhere(
   return where;
 }
 
+export class TenantScopeViolationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "TenantScopeViolationError";
+  }
+}
+
 function scopeCreateData(model: string, data: unknown, ctx: TenantContext): unknown {
   if (!data || typeof data !== "object" || Array.isArray(data)) return data;
+
   if (ORG_AND_BRANCH_MODELS.has(model)) {
+    // branchId isn't forced to a single value (an OWNER/ACCOUNTANT can act
+    // across several branches), but it must be one the caller can access.
+    const branchId = (data as { branchId?: string }).branchId;
+    if (!branchId || !ctx.accessibleBranchIds.includes(branchId)) {
+      throw new TenantScopeViolationError(
+        `branchId "${branchId ?? "(missing)"}" is not one of the caller's accessible branches`,
+      );
+    }
     return { ...data, organizationId: ctx.organizationId };
   }
+
   if (ORG_ONLY_MODELS.has(model)) {
     return { ...data, organizationId: ctx.organizationId };
   }
+
   return data;
 }
 

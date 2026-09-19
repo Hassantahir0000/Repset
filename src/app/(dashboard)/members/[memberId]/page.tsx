@@ -5,11 +5,13 @@ import { getCurrentMembership, listMembershipHistory } from "@/features/membersh
 import { listActivePlansForAssignment } from "@/features/membership-plans/queries";
 import { getCurrentOrganization } from "@/features/organizations/queries";
 import { getOpenAttendance, listAttendanceForMember } from "@/features/attendance/queries";
+import { listInvoicesForMember } from "@/features/billing/queries";
 import { MemberForm } from "../member-form";
 import { PageHeader } from "@/components/page-header";
 import { MembershipPanel } from "./membership-panel";
 import { MembershipHistory } from "./membership-history";
 import { AttendancePanel } from "./attendance-panel";
+import { BillingPanel } from "./billing-panel";
 
 export default async function MemberDetailPage({
   params,
@@ -20,16 +22,25 @@ export default async function MemberDetailPage({
   const member = await getMember(memberId);
   if (!member) notFound();
 
-  const [branches, currentMembership, history, plans, organization, openAttendance, recentAttendance] =
-    await Promise.all([
-      listAssignableBranches(),
-      getCurrentMembership(memberId),
-      listMembershipHistory(memberId),
-      listActivePlansForAssignment(),
-      getCurrentOrganization(),
-      getOpenAttendance(memberId),
-      listAttendanceForMember(memberId, 5),
-    ]);
+  const [
+    branches,
+    currentMembership,
+    history,
+    plans,
+    organization,
+    openAttendance,
+    recentAttendance,
+    invoices,
+  ] = await Promise.all([
+    listAssignableBranches(),
+    getCurrentMembership(memberId),
+    listMembershipHistory(memberId),
+    listActivePlansForAssignment(),
+    getCurrentOrganization(),
+    getOpenAttendance(memberId),
+    listAttendanceForMember(memberId, 5),
+    listInvoicesForMember(memberId),
+  ]);
 
   // Editing an existing member should still offer their current branch even
   // if it isn't one the caller could newly assign to (e.g. an OWNER viewing
@@ -82,6 +93,16 @@ export default async function MemberDetailPage({
             }
           />
           <MembershipHistory history={history} currency={organization.currency} />
+          <BillingPanel
+            invoices={invoices.map((inv) => ({
+              id: inv.id,
+              invoiceNumber: inv.invoiceNumber,
+              status: inv.status,
+              totalAmount: inv.totalAmount,
+              amountPaid: Number(inv.amountPaid),
+            }))}
+            currency={organization.currency}
+          />
           <AttendancePanel
             memberId={member.id}
             openAttendanceId={openAttendance?.id ?? null}

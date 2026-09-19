@@ -128,3 +128,25 @@
     @apply font-sans;
   }
 }
+
+/* Printing an invoice/receipt: hide the app chrome and everything on the
+   page except the receipt card itself. */
+@media print {
+  aside,
+  header,
+  .no-print {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+  body :not(.printable-receipt):not(.printable-receipt *) {
+    visibility: hidden;
+  }
+  .printable-receipt {
+    position: absolute;
+    inset: 0;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

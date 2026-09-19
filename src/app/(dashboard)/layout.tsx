@@ -11,6 +11,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/dashboard", label: "Dashboard" },
       { href: "/members", label: "Members" },
       { href: "/attendance", label: "Check-in Desk" },
+      { href: "/billing", label: "Billing" },
     ],
   },
   {

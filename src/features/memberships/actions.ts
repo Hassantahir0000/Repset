@@ -10,6 +10,7 @@ import {
   type RenewMembershipInput,
 } from "@/features/memberships/schema";
 import {
+  addDays,
   computeEndDate,
   applyFreezeExtension,
   canFreeze,
@@ -18,12 +19,20 @@ import {
   canExpire,
   canRenew,
 } from "@/features/memberships/logic";
+import { createInvoiceRecord, type InvoiceLineItemInput } from "@/features/billing/helpers";
+
+// Invoices are payable same-day at the front desk, but a dueDate equal to
+// issueDate would flip to OVERDUE within milliseconds of creation (any
+// instant after issuance is already "past" that exact timestamp). A short
+// grace window keeps "overdue" meaning what it should: unpaid past the day
+// it was due, not unpaid a heartbeat after being raised.
+const INVOICE_DUE_GRACE_DAYS = 1;
 
 export type ActionResult<T> = { success: true; data: T } | { success: false; error: string };
 
 export async function activateMembership(
   input: ActivateMembershipInput,
-): Promise<ActionResult<{ id: string }>> {
+): Promise<ActionResult<{ id: string; invoiceId: string }>> {
   const ctx = await getTenantContext();
   requirePermission(ctx, "membership:manage");
 
@@ -63,12 +72,30 @@ export async function activateMembership(
       priceAtPurchase: plan.price,
     },
   });
-  return { success: true, data: { id: membership.id } };
+
+  // Selling a membership always produces a bill — generated here rather
+  // than left to a separate manual step, per the product's Lead -> ...
+  // -> Membership -> Invoice -> Payment lifecycle. Registration fee only
+  // applies on a fresh activation, never on a renewal.
+  const items: InvoiceLineItemInput[] = [
+    { description: `${plan.name} membership`, quantity: 1, unitPrice: Number(plan.price), membershipId: membership.id },
+  ];
+  if (Number(plan.registrationFee) > 0) {
+    items.push({ description: "Registration fee", quantity: 1, unitPrice: Number(plan.registrationFee) });
+  }
+  const invoice = await createInvoiceRecord(db, ctx, {
+    memberId,
+    branchId: member.branchId,
+    items,
+    dueDate: addDays(start, INVOICE_DUE_GRACE_DAYS),
+  });
+
+  return { success: true, data: { id: membership.id, invoiceId: invoice.id } };
 }
 
 export async function renewMembership(
   input: RenewMembershipInput,
-): Promise<ActionResult<{ id: string }>> {
+): Promise<ActionResult<{ id: string; invoiceId: string }>> {
   const ctx = await getTenantContext();
   requirePermission(ctx, "membership:manage");
 
@@ -110,7 +137,21 @@ export async function renewMembership(
     await db.membership.update({ where: { id: membership.id }, data: { status: "EXPIRED" } });
   }
 
-  return { success: true, data: { id: renewed.id } };
+  const invoice = await createInvoiceRecord(db, ctx, {
+    memberId: membership.memberId,
+    branchId: membership.branchId,
+    items: [
+      {
+        description: `${plan.name} membership renewal`,
+        quantity: 1,
+        unitPrice: Number(plan.price),
+        membershipId: renewed.id,
+      },
+    ],
+    dueDate: addDays(start, INVOICE_DUE_GRACE_DAYS),
+  });
+
+  return { success: true, data: { id: renewed.id, invoiceId: invoice.id } };
 }
 
 export async function freezeMembership(membershipId: string): Promise<ActionResult<{ id: string }>> {

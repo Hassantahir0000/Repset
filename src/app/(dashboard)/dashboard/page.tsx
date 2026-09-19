@@ -3,8 +3,12 @@ import { getTenantContext } from "@/lib/tenant";
 import { rawPrisma } from "@/lib/prisma";
 import { getMemberStatusCounts, listRecentMembers } from "@/features/members/queries";
 import { countTodayAttendance } from "@/features/attendance/queries";
+import { listOutstandingInvoices, getOutstandingBalanceTotal } from "@/features/billing/queries";
+import { getCurrentOrganization } from "@/features/organizations/queries";
+import { computeBalance } from "@/features/billing/logic";
 import { KpiTile } from "@/components/kpi-tile";
 import { MemberStatusBadge } from "@/components/member-status-badge";
+import { InvoiceStatusBadge } from "@/components/invoice-status-badge";
 
 function greeting(): string {
   const hour = new Date().getHours();
@@ -16,12 +20,17 @@ function greeting(): string {
 export default async function DashboardPage() {
   const ctx = await getTenantContext();
 
-  const [branchCount, counts, recentMembers, todayCheckIns] = await Promise.all([
-    rawPrisma.branch.count({ where: { organizationId: ctx.organizationId } }),
-    getMemberStatusCounts(),
-    listRecentMembers(5),
-    countTodayAttendance(),
-  ]);
+  const [branchCount, counts, recentMembers, todayCheckIns, outstandingInvoices, outstandingTotal, organization] =
+    await Promise.all([
+      rawPrisma.branch.count({ where: { organizationId: ctx.organizationId } }),
+      getMemberStatusCounts(),
+      listRecentMembers(5),
+      countTodayAttendance(),
+      listOutstandingInvoices(),
+      getOutstandingBalanceTotal(),
+      getCurrentOrganization(),
+    ]);
+  const topOutstanding = outstandingInvoices.slice(0, 5);
 
   return (
     <div className="space-y-6">
@@ -32,7 +41,7 @@ export default async function DashboardPage() {
         <h1 className="mt-1.5 text-[26px] font-bold tracking-tight">{greeting()}.</h1>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <KpiTile
           label="Total members"
           value={String(counts.total)}
@@ -43,6 +52,12 @@ export default async function DashboardPage() {
         <KpiTile label="Frozen" value={String(counts.FROZEN)} hint="Paused memberships" />
         <KpiTile label="Inactive" value={String(counts.INACTIVE)} hint="Not currently training" />
         <KpiTile label="Check-ins today" value={String(todayCheckIns)} hint="Across all branches" />
+        <KpiTile
+          label="Outstanding"
+          value={`${organization.currency} ${outstandingTotal}`}
+          hint={`${outstandingInvoices.length} unpaid ${outstandingInvoices.length === 1 ? "invoice" : "invoices"}`}
+          tone="accent"
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -80,13 +95,40 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-dashed border-border bg-card p-4.5">
-          <div className="text-[14.5px] font-semibold">Coming up next</div>
-          <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
-            Payments, reports, notifications, and CRM modules land here as they&apos;re built. Revenue
-            KPIs will appear on this dashboard once billing exists &mdash; nothing shown above is
-            placeholder data.
-          </p>
+        <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(20,20,26,0.03)]">
+          <div className="flex items-center justify-between border-b border-border px-4.5 py-3.5">
+            <div className="text-[14.5px] font-semibold">Outstanding invoices</div>
+            <Link href="/billing" className="text-xs font-semibold text-primary hover:underline">
+              View all
+            </Link>
+          </div>
+          {topOutstanding.length === 0 ? (
+            <div className="px-4.5 py-8 text-center text-sm text-muted-foreground">
+              Nothing outstanding &mdash; all invoices are paid up.
+            </div>
+          ) : (
+            <ul className="divide-y divide-border">
+              {topOutstanding.map((invoice) => {
+                const balance = computeBalance(Number(invoice.totalAmount), Number(invoice.amountPaid));
+                return (
+                  <li key={invoice.id} className="flex items-center justify-between gap-3 px-4.5 py-3">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/members/${invoice.memberId}`}
+                        className="truncate text-sm font-semibold hover:underline"
+                      >
+                        {invoice.member.firstName} {invoice.member.lastName}
+                      </Link>
+                      <div className="font-mono text-[11px] text-muted-foreground">
+                        {invoice.invoiceNumber} &middot; {organization.currency} {balance} due
+                      </div>
+                    </div>
+                    <InvoiceStatusBadge status={invoice.status} />
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       </div>
     </div>

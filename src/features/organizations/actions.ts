@@ -2,9 +2,13 @@
 
 import bcrypt from "bcryptjs";
 import { rawPrisma } from "@/lib/prisma";
+import { getTenantContext } from "@/lib/tenant";
+import { requirePermission } from "@/lib/permissions";
 import {
   createOrganizationWithOwnerSchema,
+  updateOrganizationSchema,
   type CreateOrganizationWithOwnerInput,
+  type UpdateOrganizationInput,
 } from "@/features/organizations/schema";
 
 export type ActionResult<T> = { success: true; data: T } | { success: false; error: string };
@@ -70,4 +74,27 @@ export async function createOrganizationWithOwner(
     }
     throw err;
   }
+}
+
+/**
+ * Organization is the tenant root, not a tenant-owned model, so there's
+ * nothing for tenantDb() to scope — updates are always targeted at the
+ * caller's own ctx.organizationId, never a client-supplied id.
+ */
+export async function updateOrganization(
+  input: UpdateOrganizationInput,
+): Promise<ActionResult<{ id: string }>> {
+  const ctx = await getTenantContext();
+  requirePermission(ctx, "organization:manage");
+
+  const parsed = updateOrganizationSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const organization = await rawPrisma.organization.update({
+    where: { id: ctx.organizationId },
+    data: parsed.data,
+  });
+  return { success: true, data: { id: organization.id } };
 }

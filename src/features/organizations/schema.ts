@@ -9,3 +9,10 @@ export const createOrganizationWithOwnerSchema = z.object({
 });
 
 export type CreateOrganizationWithOwnerInput = z.infer<typeof createOrganizationWithOwnerSchema>;
+
+export const updateOrganizationSchema = z.object({
+  name: z.string().trim().min(2).max(120).optional(),
+  timezone: z.string().trim().min(1).max(60).optional(),
+  currency: z.string().trim().length(3).toUpperCase().optional(),
+});
+export type UpdateOrganizationInput = z.infer<typeof updateOrganizationSchema>;

@@ -5,7 +5,7 @@ import { getMembershipStatusCounts, getOpenMembershipCountsByPlan } from "@/feat
 import { PageHeader } from "@/components/page-header";
 import { KpiTile } from "@/components/kpi-tile";
 import { PlanRow } from "./plan-row";
-import { NewPlanForm } from "./new-plan-form";
+import { NewPlanDialog } from "./new-plan-dialog";
 
 export default async function MembershipPlansPage() {
   const [plans, branches, organization, statusCounts, memberCountsByPlan] = await Promise.all([
@@ -18,7 +18,11 @@ export default async function MembershipPlansPage() {
 
   return (
     <div className="max-w-3xl space-y-6">
-      <PageHeader title="Membership plans" description={`${plans.length} plan${plans.length === 1 ? "" : "s"}`} />
+      <PageHeader
+        title="Membership plans"
+        description={`${plans.length} plan${plans.length === 1 ? "" : "s"}`}
+        actions={<NewPlanDialog branches={branches} currency={organization.currency} />}
+      />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <KpiTile label="Active" value={String(statusCounts.ACTIVE)} />
@@ -57,11 +61,6 @@ export default async function MembershipPlansPage() {
             )}
           </tbody>
         </table>
-      </div>
-
-      <div>
-        <h2 className="mb-3 text-[14.5px] font-semibold">Add a plan</h2>
-        <NewPlanForm branches={branches} currency={organization.currency} />
       </div>
     </div>
   );

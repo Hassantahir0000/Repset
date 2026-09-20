@@ -32,6 +32,58 @@ export async function getOpenMembershipCountsByPlan(): Promise<Map<string, numbe
   return new Map(groups.map((g) => [g.planId, g._count._all]));
 }
 
+export type ExpiringMembership = {
+  id: string;
+  memberId: string;
+  memberName: string;
+  planName: string;
+  endDate: Date;
+};
+
+/** ACTIVE memberships whose endDate falls within the next `withinDays` —
+ * used for the dashboard's "Expiring soon" list and the sidebar's renewal
+ * risk callout. */
+export async function listExpiringMemberships(withinDays: number, limit = 5): Promise<ExpiringMembership[]> {
+  const ctx = await getTenantContext();
+  const db = tenantDb(ctx);
+  const now = new Date();
+  const horizon = new Date(now.getTime() + withinDays * 86_400_000);
+
+  const rows = await db.membership.findMany({
+    where: { status: "ACTIVE", endDate: { gte: now, lte: horizon } },
+    include: { member: { select: { firstName: true, lastName: true } }, plan: { select: { name: true } } },
+    orderBy: { endDate: "asc" },
+    take: limit,
+  });
+
+  return rows.map((r) => ({
+    id: r.id,
+    memberId: r.memberId,
+    memberName: `${r.member.firstName} ${r.member.lastName}`,
+    planName: r.plan.name,
+    endDate: r.endDate,
+  }));
+}
+
+/** Count and total renewal value of ACTIVE memberships expiring within
+ * `withinDays` — feeds the sidebar's "N renewals this week" callout. */
+export async function getRenewalRiskSummary(withinDays: number): Promise<{ count: number; totalValue: number }> {
+  const ctx = await getTenantContext();
+  const db = tenantDb(ctx);
+  const now = new Date();
+  const horizon = new Date(now.getTime() + withinDays * 86_400_000);
+
+  const rows = await db.membership.findMany({
+    where: { status: "ACTIVE", endDate: { gte: now, lte: horizon } },
+    select: { priceAtPurchase: true },
+  });
+
+  return {
+    count: rows.length,
+    totalValue: rows.reduce((sum, r) => sum + Number(r.priceAtPurchase), 0),
+  };
+}
+
 export async function listMembershipHistory(memberId: string) {
   const ctx = await getTenantContext();
   const db = tenantDb(ctx);

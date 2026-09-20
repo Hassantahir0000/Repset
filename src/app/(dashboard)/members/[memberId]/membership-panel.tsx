@@ -11,7 +11,15 @@ import {
   cancelMembership,
   expireMembership,
 } from "@/features/memberships/actions";
-import { canFreeze, canResume, canCancel, canExpire, canRenew } from "@/features/memberships/logic";
+import {
+  canFreeze,
+  canResume,
+  canCancel,
+  canExpire,
+  canRenew,
+  membershipProgress,
+} from "@/features/memberships/logic";
+import { formatMoney } from "@/lib/format";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -66,6 +74,16 @@ export function MembershipPanel({
   const isOpen =
     currentMembership && ["PENDING", "ACTIVE", "FROZEN"].includes(currentMembership.status);
 
+  // Only meaningful while the term is still running — a cancelled or expired
+  // membership has no remaining time to show progress against.
+  const termProgress =
+    currentMembership && isOpen
+      ? membershipProgress(
+          new Date(currentMembership.startDate),
+          new Date(currentMembership.endDate),
+        )
+      : null;
+
   function run(action: () => Promise<{ success: boolean; error?: string }>, successMessage: string) {
     setError(null);
     startTransition(async () => {
@@ -107,10 +125,25 @@ export function MembershipPanel({
               </div>
             </div>
             <div className="mt-2 font-mono text-[11px] text-muted-foreground">
-              PAID {currency} {currentMembership.priceAtPurchase}
+              PAID {formatMoney(currency, Number(currentMembership.priceAtPurchase))}
             </div>
 
-            <div className="mt-3 flex flex-wrap gap-2">
+            {termProgress && (
+              <>
+                <div className="mt-3.5 h-1.5 overflow-hidden rounded-full bg-secondary">
+                  <div
+                    className="h-full rounded-full bg-primary"
+                    style={{ width: `${termProgress.percentUsed}%` }}
+                  />
+                </div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  {termProgress.percentUsed}% of the term used · {termProgress.daysLeft} day
+                  {termProgress.daysLeft === 1 ? "" : "s"} left
+                </div>
+              </>
+            )}
+
+            <div className="mt-3.5 flex flex-wrap gap-2">
               {canFreeze(currentMembership.status) && (
                 <Button
                   size="sm"

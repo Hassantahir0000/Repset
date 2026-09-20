@@ -1,6 +1,6 @@
 import { getTenantContext } from "@/lib/tenant";
 import { tenantDb } from "@/lib/prisma";
-import { computeBalance } from "@/features/billing/logic";
+import { computeBalance, sumMoney } from "@/features/billing/logic";
 
 export async function listInvoicesForMember(memberId: string) {
   const ctx = await getTenantContext();
@@ -9,6 +9,14 @@ export async function listInvoicesForMember(memberId: string) {
     where: { memberId },
     orderBy: { issueDate: "desc" },
   });
+}
+
+/** Everything a member has actually paid, across all their invoices. */
+export async function getMemberLifetimeValue(memberId: string): Promise<number> {
+  const ctx = await getTenantContext();
+  const db = tenantDb(ctx);
+  const payments = await db.payment.findMany({ where: { memberId }, select: { amount: true } });
+  return sumMoney(payments.map((p) => Number(p.amount)));
 }
 
 export async function getInvoice(invoiceId: string) {

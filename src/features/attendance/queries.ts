@@ -17,6 +17,18 @@ export async function listAttendanceForMember(memberId: string, limit = 10) {
   });
 }
 
+/** Check-ins for a member since a cut-off, oldest last — backs the profile
+ * attendance heatmap. */
+export async function listAttendanceSince(memberId: string, since: Date) {
+  const ctx = await getTenantContext();
+  const db = tenantDb(ctx);
+  return db.attendance.findMany({
+    where: { memberId, checkInAt: { gte: since } },
+    orderBy: { checkInAt: "desc" },
+    select: { id: true, checkInAt: true, checkOutAt: true },
+  });
+}
+
 export async function listTodayAttendance() {
   const ctx = await getTenantContext();
   const db = tenantDb(ctx);

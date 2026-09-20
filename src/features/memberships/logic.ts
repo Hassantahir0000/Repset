@@ -30,6 +30,24 @@ export function isExpiredByDate(endDate: Date, now: Date = new Date()): boolean 
   return endDate.getTime() < now.getTime();
 }
 
+/**
+ * How far through its term a membership is, for the profile progress bar.
+ * `percentUsed` is clamped to 0-100 so an already-expired or not-yet-started
+ * term still renders a sane bar, while `daysLeft` floors at zero.
+ */
+export function membershipProgress(
+  startDate: Date,
+  endDate: Date,
+  now: Date = new Date(),
+): { percentUsed: number; daysLeft: number } {
+  const total = endDate.getTime() - startDate.getTime();
+  const elapsed = now.getTime() - startDate.getTime();
+  const percentUsed =
+    total <= 0 ? 100 : Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
+  const daysLeft = Math.max(0, Math.ceil((endDate.getTime() - now.getTime()) / MS_PER_DAY));
+  return { percentUsed, daysLeft };
+}
+
 // Status transition guards — the single source of truth for which actions
 // are legal from which states, shared by the Server Actions and their tests.
 const FREEZABLE: MembershipStatus[] = ["ACTIVE"];

@@ -10,6 +10,7 @@ import {
   canCancel,
   canExpire,
   canRenew,
+  membershipProgress,
 } from "@/features/memberships/logic";
 
 describe("date math", () => {
@@ -97,5 +98,32 @@ describe("status transition guards", () => {
     expect(canRenew("EXPIRED")).toBe(true);
     expect(canRenew("PENDING")).toBe(false);
     expect(canRenew("CANCELLED")).toBe(false);
+  });
+});
+
+describe("membershipProgress", () => {
+  const start = new Date("2026-09-01T00:00:00");
+  const end = new Date("2026-10-01T00:00:00");
+
+  it("reports how much of the term is used and what is left", () => {
+    const { percentUsed, daysLeft } = membershipProgress(start, end, new Date("2026-09-16T00:00:00"));
+    expect(percentUsed).toBe(50);
+    expect(daysLeft).toBe(15);
+  });
+
+  it("clamps a term that has already run out rather than exceeding 100%", () => {
+    const { percentUsed, daysLeft } = membershipProgress(start, end, new Date("2026-11-01T00:00:00"));
+    expect(percentUsed).toBe(100);
+    expect(daysLeft).toBe(0);
+  });
+
+  it("clamps a term that has not started yet to zero", () => {
+    const { percentUsed } = membershipProgress(start, end, new Date("2026-08-01T00:00:00"));
+    expect(percentUsed).toBe(0);
+  });
+
+  it("treats a zero-length term as fully used instead of dividing by zero", () => {
+    const { percentUsed } = membershipProgress(start, start, new Date("2026-09-01T00:00:00"));
+    expect(percentUsed).toBe(100);
   });
 });

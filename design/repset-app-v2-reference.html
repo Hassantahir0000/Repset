@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Repset — app UI v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root { --accent: #E8462A; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #F5F4F1; color: #16161A; font-family: Archivo, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: #16161A; }
+button { transition: background 140ms ease, color 140ms ease, border-color 140ms ease, transform 140ms ease, box-shadow 140ms ease; }
+@keyframes riseIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes slideOver { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+</style>
+</helmet>
+
+<div style="display: grid; grid-template-columns: 232px minmax(0, 1fr); height: 100vh; min-height: 660px; background: #F5F4F1; position: relative;">
+
+  <aside style="display: flex; flex-direction: column; gap: 3px; padding: 16px 14px; background: #121215; overflow-y: auto;">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px;">
+      <div style="width: 26px; height: 26px; border-radius: 8px; background: var(--accent); box-shadow: 0 6px 18px -6px rgba(232,70,42,0.8);"></div>
+      <div style="min-width: 0;">
+        <div style="font-size: 15px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.02em;">Repset</div>
+        <div style="font-size: 11px; color: #74747C;">Iron House Gym</div>
+      </div>
+    </div>
+
+    <button style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; margin-bottom: 14px; padding: 9px 11px; border: 1px solid #26262C; border-radius: 10px; background: #1A1A1F; color: #9A9AA2; font-family: Archivo, sans-serif; font-size: 13px; cursor: pointer;" style-hover="border-color: #3A3A42; color: #F2F1EF;">
+      <span>Search anything</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 2px 6px; border-radius: 5px; background: #26262C;">⌘K</span>
+    </button>
+
+    <div style="padding: 6px 10px 6px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; color: #5C5C64;">TODAY</div>
+    <button onClick="{{ goDashboard }}" style="{{ navDashboard }}"><span>Dashboard</span></button>
+    <button onClick="{{ goCheckin }}" style="{{ navCheckin }}"><span>Check-in desk</span><span style="{{ badgeLive }}">41</span></button>
+    <div style="padding: 16px 10px 6px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; color: #5C5C64;">PEOPLE</div>
+    <button onClick="{{ goMembers }}" style="{{ navMembers }}"><span>Members</span></button>
+    <button onClick="{{ goPlans }}" style="{{ navPlans }}"><span>Memberships</span></button>
+    <button onClick="{{ goLeads }}" style="{{ navLeads }}"><span>Leads</span><span style="{{ badgeAlert }}">12</span></button>
+    <button onClick="{{ goTrainers }}" style="{{ navTrainers }}"><span>Trainers &amp; PT</span></button>
+    <div style="padding: 16px 10px 6px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; color: #5C5C64;">SCHEDULE</div>
+    <button onClick="{{ goClasses }}" style="{{ navClasses }}"><span>Classes</span></button>
+    <div style="padding: 16px 10px 6px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; color: #5C5C64;">MONEY</div>
+    <button onClick="{{ goPayments }}" style="{{ navPayments }}"><span>Payments</span></button>
+    <button onClick="{{ goStore }}" style="{{ navStore }}"><span>Store</span><span style="{{ badgeAlert }}">3</span></button>
+    <button onClick="{{ goExpenses }}" style="{{ navExpenses }}"><span>Expenses</span></button>
+    <button onClick="{{ goReports }}" style="{{ navReports }}"><span>Reports</span></button>
+    <button onClick="{{ goInventory }}" style="{{ navInventory }}"><span>Inventory</span></button>
+    <div style="padding: 16px 10px 6px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; color: #5C5C64;">ADMIN</div>
+    <button onClick="{{ goStaff }}" style="{{ navStaff }}"><span>Staff</span></button>
+    <button onClick="{{ goTemplates }}" style="{{ navTemplates }}"><span>Messaging</span></button>
+    <button onClick="{{ goDocuments }}" style="{{ navDocuments }}"><span>Documents</span></button>
+    <button onClick="{{ goSettings }}" style="{{ navSettings }}"><span>Settings &amp; roles</span></button>
+
+    <div style="margin-top: auto; padding-top: 16px;">
+      <div style="padding: 14px; border-radius: 12px; background: linear-gradient(160deg, #1E1E23, #17171B); border: 1px solid #26262C;">
+        <div style="font-size: 12.5px; font-weight: 600; color: #F2F1EF;">18 renewals this week</div>
+        <div style="margin-top: 4px; font-size: 12px; line-height: 1.45; color: #85858D;">Rs 142,000 at risk if nobody calls.</div>
+        <button onClick="{{ goMembers }}" style="margin-top: 10px; width: 100%; padding: 8px; border: 0; border-radius: 8px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 12.5px; font-weight: 600; cursor: pointer;" style-hover="opacity: 0.9;">Send reminders</button>
+      </div>
+      <div onClick="{{ openAuth }}" style="display: flex; align-items: center; gap: 10px; margin-top: 14px; padding: 8px 4px 0; border-top: 1px solid #222228; cursor: pointer;">
+        <div style="width: 30px; height: 30px; border-radius: 10px; background: repeating-linear-gradient(45deg, #26262B, #26262B 5px, #313138 5px, #313138 10px);"></div>
+        <div style="min-width: 0;">
+          <div style="font-size: 12.5px; font-weight: 600; color: #F2F1EF;">Owais R.</div>
+          <div style="font-size: 11px; color: #74747C;">Owner · all branches</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main style="display: flex; flex-direction: column; min-width: 0; overflow: hidden;">
+
+    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 24px; background: rgba(245,244,241,0.85); backdrop-filter: blur(10px); border-bottom: 1px solid #E8E6E1; flex: none;">
+      <div style="display: flex; align-items: center; gap: 6px; padding: 3px; border-radius: 999px; background: #EDEBE6;">
+        <button onClick="{{ setBranchAll }}" style="{{ branchAllBtn }}">All branches</button>
+        <button onClick="{{ setBranchIsb }}" style="{{ branchIsbBtn }}">Islamabad</button>
+        <button onClick="{{ setBranchRwp }}" style="{{ branchRwpBtn }}">Rawalpindi</button>
+        <button onClick="{{ setBranchLhr }}" style="{{ branchLhrBtn }}">Lahore</button>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 7px; padding: 6px 12px; border-radius: 999px; background: #FFFFFF; border: 1px solid #E8E6E1; font-size: 12.5px; color: #4E4E56;">
+          <span style="width: 7px; height: 7px; border-radius: 50%; background: #1F7A4D;"></span>
+          <span>41 in the gym now</span>
+        </div>
+        <button onClick="{{ openPayment }}" style="padding: 9px 16px; border: 0; border-radius: 10px; background: #16161A; color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 8px 20px -12px rgba(22,22,26,0.9);" style-hover="transform: translateY(-1px);">Quick action</button>
+      </div>
+    </div>
+
+    <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 24px;">
+
+      <sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px;">
+            <div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #8A8A90;">SATURDAY, 19 SEPTEMBER 2026</div>
+              <h1 style="margin: 6px 0 0; font-size: 28px; font-weight: 700; letter-spacing: -0.03em;">Good evening, Owais.</h1>
+              <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">{{ dashSummary }}</div>
+            </div>
+            <div style="display: flex; gap: 4px; padding: 3px; border-radius: 999px; background: #EDEBE6;">
+              <button onClick="{{ setToday }}" style="{{ periodTodayBtn }}">Today</button>
+              <button onClick="{{ setWeek }}" style="{{ periodWeekBtn }}">Week</button>
+              <button onClick="{{ setMonth }}" style="{{ periodMonthBtn }}">Month</button>
+            </div>
+          </div>
+
+          <div style="margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;">
+            <div style="padding: 18px; border-radius: 14px; background: #16161A; color: #FFFFFF; box-shadow: 0 1px 2px rgba(20,20,26,0.06), 0 18px 40px -26px rgba(20,20,26,0.9);">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8E8E97;">REVENUE · {{ periodLabel }}</div>
+              <div style="margin-top: 10px; font-size: 30px; font-weight: 700; letter-spacing: -0.03em; white-space: nowrap;">{{ kpiRevenue }}</div>
+              <div style="margin-top: 10px; display: flex; align-items: center; gap: 8px;">
+                <span style="padding: 3px 8px; border-radius: 999px; background: rgba(111,191,143,0.16); color: #7FD2A3; font-size: 12px; font-weight: 600;">{{ kpiRevenueDelta }}</span>
+                <span style="font-size: 12px; color: #8E8E97;">vs previous</span>
+              </div>
+              <div style="margin-top: 16px; display: flex; align-items: flex-end; gap: 4px; height: 44px;">
+                <div style="flex: 1; height: 42%; border-radius: 3px; background: #2E2E35;"></div>
+                <div style="flex: 1; height: 58%; border-radius: 3px; background: #2E2E35;"></div>
+                <div style="flex: 1; height: 50%; border-radius: 3px; background: #2E2E35;"></div>
+                <div style="flex: 1; height: 72%; border-radius: 3px; background: #45454E;"></div>
+                <div style="flex: 1; height: 64%; border-radius: 3px; background: #45454E;"></div>
+                <div style="flex: 1; height: 86%; border-radius: 3px; background: var(--accent);"></div>
+                <div style="flex: 1; height: 100%; border-radius: 3px; background: var(--accent);"></div>
+              </div>
+            </div>
+
+            <div style="padding: 18px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">ACTIVE MEMBERS</div>
+              <div style="margin-top: 10px; font-size: 30px; font-weight: 700; letter-spacing: -0.03em; white-space: nowrap;">412</div>
+              <div style="margin-top: 10px; font-size: 12.5px; color: #6B6B73;">+18 joined this month</div>
+              <div style="margin-top: 16px; height: 6px; border-radius: 3px; background: #F0EEE9; overflow: hidden;"><div style="width: 82%; height: 100%; background: #1F7A4D;"></div></div>
+              <div style="margin-top: 7px; font-size: 11.5px; color: #8A8A90;">82% of capacity target</div>
+            </div>
+
+            <div style="padding: 18px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">CHECK-INS · {{ periodLabel }}</div>
+              <div style="margin-top: 10px; font-size: 30px; font-weight: 700; letter-spacing: -0.03em; white-space: nowrap;">{{ kpiCheckins }}</div>
+              <div style="margin-top: 10px; font-size: 12.5px; color: #6B6B73;">Peak 7–9 PM · 41 in now</div>
+              <div style="margin-top: 16px; display: flex; align-items: flex-end; gap: 3px; height: 30px;">
+                <div style="flex: 1; height: 20%; border-radius: 2px; background: #EDEBE6;"></div><div style="flex: 1; height: 34%; border-radius: 2px; background: #EDEBE6;"></div><div style="flex: 1; height: 28%; border-radius: 2px; background: #EDEBE6;"></div><div style="flex: 1; height: 46%; border-radius: 2px; background: #E0DED8;"></div><div style="flex: 1; height: 60%; border-radius: 2px; background: #E0DED8;"></div><div style="flex: 1; height: 44%; border-radius: 2px; background: #E0DED8;"></div><div style="flex: 1; height: 72%; border-radius: 2px; background: #C9C7C0;"></div><div style="flex: 1; height: 96%; border-radius: 2px; background: var(--accent);"></div><div style="flex: 1; height: 80%; border-radius: 2px; background: #C9C7C0;"></div><div style="flex: 1; height: 38%; border-radius: 2px; background: #EDEBE6;"></div>
+              </div>
+            </div>
+
+            <div style="padding: 18px; border-radius: 14px; background: #FDF1EE; border: 1px solid #F5CFC5; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #B8492F;">NEEDS ACTION</div>
+              <div style="margin-top: 10px; font-size: 30px; font-weight: 700; letter-spacing: -0.03em; color: #C23B22; white-space: nowrap;">37</div>
+              <div style="margin-top: 10px; font-size: 12.5px; color: #96432C; line-height: 1.5;">18 expiries · 7 unpaid invoices · 12 cold leads</div>
+              <button onClick="{{ goMembers }}" style="margin-top: 14px; padding: 8px 14px; border: 0; border-radius: 9px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 12.5px; font-weight: 600; cursor: pointer;" style-hover="opacity: 0.9;">Work the list</button>
+            </div>
+          </div>
+
+          <div style="margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; align-items: start;">
+            <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #F0EEE9;">
+                <div style="font-size: 14.5px; font-weight: 600;">Expiring soon</div>
+                <button onClick="{{ goMembers }}" style="padding: 5px 10px; border: 1px solid #E8E6E1; border-radius: 8px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 12px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">View all</button>
+              </div>
+              <sc-for list="{{ expiring }}" as="row" hint-placeholder-count="5">
+                <div style="display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 12px 18px; border-bottom: 1px solid #F5F3EF;" style-hover="background: #FAF9F6;">
+                  <div style="width: 32px; height: 32px; border-radius: 10px; background: repeating-linear-gradient(45deg, #F0EEE9, #F0EEE9 5px, #E6E4DE 5px, #E6E4DE 10px);"></div>
+                  <div style="min-width: 0;">
+                    <div style="font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ row.name }}</div>
+                    <div style="font-size: 12px; color: #8A8A90;">{{ row.plan }}</div>
+                  </div>
+                  <span style="padding: 3px 9px; border-radius: 999px; background: #FDF1EE; color: #C23B22; font-size: 11.5px; font-weight: 600; white-space: nowrap;">{{ row.days }}</span>
+                  <button style="padding: 6px 11px; border: 1px solid #E8E6E1; border-radius: 8px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;" style-hover="border-color: #16161A;">Remind</button>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #F0EEE9;">
+                <div style="font-size: 14.5px; font-weight: 600;">Live check-ins</div>
+                <span style="display: flex; align-items: center; gap: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8A8A90;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #1F7A4D;"></span>LIVE</span>
+              </div>
+              <sc-for list="{{ feed }}" as="row" hint-placeholder-count="5">
+                <div style="display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 18px; border-bottom: 1px solid #F5F3EF;" style-hover="background: #FAF9F6;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #8A8A90;">{{ row.time }}</span>
+                  <span style="font-size: 13.5px; font-weight: 500;">{{ row.name }}</span>
+                  <span style="{{ row.tagStyle }}">{{ row.tag }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isMembers }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px;">
+            <div>
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">Members</h1>
+              <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">{{ countLabel }} · {{ branchLabel }}</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button onClick="{{ goImport }}" style="padding: 10px 14px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">Import CSV</button>
+              <button onClick="{{ openAddMember }}" style="padding: 10px 16px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 22px -14px rgba(232,70,42,0.95);" style-hover="transform: translateY(-1px);">+ Add member</button>
+            </div>
+          </div>
+
+          <div style="margin-top: 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+            <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Search name, ID or phone" style="padding: 10px 14px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; color: #16161A; min-width: 250px; outline: none;" style-focus="border-color: #16161A;" />
+            <div style="display: flex; gap: 4px; padding: 3px; border-radius: 999px; background: #EDEBE6;">
+              <button onClick="{{ filterAll }}" style="{{ chipAll }}">All</button>
+              <button onClick="{{ filterActive }}" style="{{ chipActive }}">Active</button>
+              <button onClick="{{ filterExpiring }}" style="{{ chipExpiring }}">Expiring</button>
+              <button onClick="{{ filterExpired }}" style="{{ chipExpired }}">Expired</button>
+              <button onClick="{{ filterFrozen }}" style="{{ chipFrozen }}">Frozen</button>
+            </div>
+          </div>
+
+          <div style="margin-top: 14px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+            <div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.9fr); gap: 12px; padding: 11px 18px; background: #FAF9F6; border-bottom: 1px solid #EFEDE8; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">
+              <span>MEMBER</span><span>PLAN</span><span>STATUS</span><span>EXPIRY</span><span>BALANCE</span><span>LAST VISIT</span>
+            </div>
+            <sc-for list="{{ members }}" as="m" hint-placeholder-count="8">
+              <div onClick="{{ m.open }}" style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.9fr); gap: 12px; align-items: center; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px; cursor: pointer;" style-hover="background: #FAF9F6;">
+                <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                  <div style="width: 34px; height: 34px; border-radius: 11px; flex: none; background: repeating-linear-gradient(45deg, #F0EEE9, #F0EEE9 5px, #E6E4DE 5px, #E6E4DE 10px);"></div>
+                  <div style="min-width: 0;">
+                    <div style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ m.name }}</div>
+                    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8A8A90;">{{ m.id }}</div>
+                  </div>
+                </div>
+                <span style="color: #4E4E56;">{{ m.plan }}</span>
+                <span><span style="{{ m.pill }}">{{ m.status }}</span></span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4E4E56;">{{ m.expiry }}</span>
+                <span style="{{ m.balanceStyle }}">{{ m.balance }}</span>
+                <span style="color: #6B6B73;">{{ m.lastVisit }}</span>
+              </div>
+            </sc-for>
+            <sc-if value="{{ noResults }}">
+              <div style="padding: 44px 18px; text-align: center;">
+                <div style="font-size: 15px; font-weight: 600;">No members match that</div>
+                <div style="margin-top: 6px; font-size: 13px; color: #8A8A90;">Try a different filter, or clear the search.</div>
+                <button onClick="{{ clearFilters }}" style="margin-top: 14px; padding: 9px 16px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">Clear filters</button>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isProfile }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <button onClick="{{ goMembers }}" style="padding: 4px 0; border: 0; background: transparent; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #8A8A90; cursor: pointer;" style-hover="color: #16161A;">← MEMBERS</button>
+
+          <div style="margin-top: 10px; border-radius: 16px; overflow: hidden; border: 1px solid #E8E6E1; background: #FFFFFF; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+            <div style="height: 76px; background: linear-gradient(120deg, #16161A, #2A2A31);"></div>
+            <div style="padding: 0 20px 18px; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px;">
+              <div style="display: flex; gap: 16px; min-width: 0; margin-top: -30px;">
+                <div style="width: 78px; height: 78px; border-radius: 18px; flex: none; border: 3px solid #FFFFFF; background: repeating-linear-gradient(45deg, #F0EEE9, #F0EEE9 6px, #E6E4DE 6px, #E6E4DE 12px);"></div>
+                <div style="min-width: 0; padding-top: 34px;">
+                  <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+                    <h1 style="margin: 0; font-size: 23px; font-weight: 700; letter-spacing: -0.03em;">{{ sel.name }}</h1>
+                    <span style="{{ sel.pill }}">{{ sel.status }}</span>
+                  </div>
+                  <div style="margin-top: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #8A8A90;">{{ sel.id }} · {{ sel.phone }} · JOINED {{ sel.joined }}</div>
+                </div>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px; padding-top: 10px;">
+                <button style="padding: 10px 16px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 22px -14px rgba(232,70,42,0.95);" style-hover="transform: translateY(-1px);">Renew membership</button>
+                <button onClick="{{ openPayment }}" style="padding: 10px 16px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">Take payment</button>
+                <button style="padding: 10px 16px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">WhatsApp</button>
+              </div>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 4px; padding: 0 20px; border-top: 1px solid #F0EEE9;">
+              <button onClick="{{ tabOverview }}" style="{{ tabOverviewStyle }}">Overview</button>
+              <button onClick="{{ tabPayments }}" style="{{ tabPaymentsStyle }}">Payments</button>
+              <button onClick="{{ tabAttendance }}" style="{{ tabAttendanceStyle }}">Attendance</button>
+              <button onClick="{{ tabTraining }}" style="{{ tabTrainingStyle }}">Training</button>
+            </div>
+          </div>
+
+          <sc-if value="{{ tabIsOverview }}">
+            <div style="margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; align-items: start;">
+              <div style="padding: 18px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+                <div style="font-size: 14.5px; font-weight: 600;">Membership</div>
+                <div style="margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 14px;">
+                  <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">PLAN</div><div style="margin-top: 5px; font-size: 15px; font-weight: 600;">{{ sel.plan }}</div></div>
+                  <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">EXPIRES</div><div style="margin-top: 5px; font-size: 15px; font-weight: 600;">{{ sel.expiry }}</div></div>
+                  <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">BALANCE</div><div style="margin-top: 5px; font-size: 15px; font-weight: 600;">{{ sel.balance }}</div></div>
+                </div>
+                <div style="margin-top: 16px; height: 6px; border-radius: 3px; background: #F0EEE9; overflow: hidden;"><div style="width: 64%; height: 100%; background: var(--accent);"></div></div>
+                <div style="margin-top: 7px; font-size: 12px; color: #8A8A90;">64% of the term used · 31 days left</div>
+                <div style="margin-top: 16px; display: flex; flex-wrap: wrap; gap: 6px;">
+                  <button style="padding: 7px 12px; border: 1px solid #E8E6E1; border-radius: 9px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #16161A;">Freeze</button>
+                  <button style="padding: 7px 12px; border: 1px solid #E8E6E1; border-radius: 9px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #16161A;">Change plan</button>
+                  <button style="padding: 7px 12px; border: 1px solid #E8E6E1; border-radius: 9px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #16161A;">Transfer branch</button>
+                </div>
+              </div>
+
+              <div style="padding: 18px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+                <div style="display: flex; align-items: baseline; justify-content: space-between;">
+                  <div style="font-size: 14.5px; font-weight: 600;">Attendance</div>
+                  <div style="font-size: 12px; color: #8A8A90;">14 visits · 30 days</div>
+                </div>
+                <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(15, 1fr); gap: 5px;">
+                  <div style="aspect-ratio: 1; border-radius: 4px; background: #F0EEE9;"></div><div style="aspect-ratio: 1; border-radius: 4px; background: var(--accent);"></div><div style="aspect-ratio: 1; border-radius: 4px; background: #F0EEE9;"></div><div style="aspect-ratio: 1; border-radius: 4px; background: var(--accent);"></div><div style="aspect-ratio: 1; border-radius: 4px; background: var(--accent);"></div><div style="aspect-ratio: 1; border-radius: 4px; background: #F0EEE9;"></div><div style="aspect-ratio: 1; border-radius: 4px; background: #F0EEE9;"></div><div style="aspect-ratio: 1; border-radius: 4px; background: var(--accent);"></div><div style="aspect-ratio: 1; border-radius: 4px; background: var(--accent);"></div><div style="aspect-ratio: 1; border-radius: 4px; background: #F0EEE9;"></div><div style="aspect-ratio: 1; border-radius: 4px; background: var(--accent);"></div><div style="aspect-ratio: 1; border-radius: 4px; background: #F0EEE9;"></div><div style="aspect-ratio: 1; border-radius: 4px; background: var(--accent);"></div><div style="aspect-ratio: 1; border-radius: 4px; background: var(--accent);"></div><div style="aspect-ratio: 1; border-radius: 4px; background: #F0EEE9;"></div>
+                  <div style="aspect-ratio: 1; border-radius: 4px; background: var(--accent);"></div><div style="aspect-ratio: 1; border-radius: 4px; background: #F0EEE9;"></div><div style="aspect-ratio: 1; border-radius: 4px; background: var(--accent);"></div><div style="aspect-ratio: 1; border-radius: 4px; background: #F0EEE9;"></div><div style="aspect-ratio: 1; border-radius: 4px; background: #F0EEE9;"></div><div style="aspect-ratio: 1; border-radius: 4px; background: var(--accent);"></div><div style="aspect-ratio: 1; border-radius: 4px; background: var(--accent);"></div><div style="aspect-ratio: 1; border-radius: 4px; background: #F0EEE9;"></div><div style="aspect-ratio: 1; border-radius: 4px; background: var(--accent);"></div><div style="aspect-ratio: 1; border-radius: 4px; background: var(--accent);"></div><div style="aspect-ratio: 1; border-radius: 4px; background: #F0EEE9;"></div><div style="aspect-ratio: 1; border-radius: 4px; background: #F0EEE9;"></div><div style="aspect-ratio: 1; border-radius: 4px; background: var(--accent);"></div><div style="aspect-ratio: 1; border-radius: 4px; background: #F0EEE9;"></div><div style="aspect-ratio: 1; border-radius: 4px; background: #F0EEE9;"></div>
+                </div>
+                <div style="margin-top: 14px; font-size: 12.5px; color: #6B6B73;">Usually trains 7–9 PM · 3.2 visits per week</div>
+              </div>
+
+              <div style="padding: 18px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+                <div style="font-size: 14.5px; font-weight: 600;">Progress</div>
+                <div style="margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 14px;">
+                  <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">WEIGHT</div><div style="margin-top: 5px; font-size: 15px; font-weight: 600;">82.4 kg</div><div style="font-size: 11.5px; color: #1F7A4D;">−3.1 kg</div></div>
+                  <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">BODY FAT</div><div style="margin-top: 5px; font-size: 15px; font-weight: 600;">21.0%</div><div style="font-size: 11.5px; color: #1F7A4D;">−1.8%</div></div>
+                  <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">WAIST</div><div style="margin-top: 5px; font-size: 15px; font-weight: 600;">88 cm</div><div style="font-size: 11.5px; color: #1F7A4D;">−4 cm</div></div>
+                </div>
+                <div style="margin-top: 16px; padding: 12px; border-radius: 10px; background: #FAF9F6; font-size: 12.5px; color: #6B6B73; line-height: 1.5;">Trainer note — "Strength up on all pressing movements. Keep cardio at 3×/week."</div>
+              </div>
+
+              <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+                <div style="padding: 14px 18px; border-bottom: 1px solid #F0EEE9; font-size: 14.5px; font-weight: 600;">Recent activity</div>
+                <div style="padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8A8A90; margin-right: 10px;">19 SEP</span>Checked in at 7:12 PM</div>
+                <div style="padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8A8A90; margin-right: 10px;">16 SEP</span>Payment received — Rs 10,000 (cash)</div>
+                <div style="padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8A8A90; margin-right: 10px;">02 SEP</span>Plan changed: Monthly → Annual VIP</div>
+                <div style="padding: 12px 18px; font-size: 13.5px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8A8A90; margin-right: 10px;">28 AUG</span>Trainer assigned: Bilal K.</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ tabIsPayments }}">
+            <div style="margin-top: 14px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 12px; padding: 11px 18px; background: #FAF9F6; border-bottom: 1px solid #EFEDE8; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">
+                <span>INVOICE</span><span>ITEM</span><span>AMOUNT</span><span>METHOD</span><span>STATUS</span>
+              </div>
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 12px; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">INV-1088</span><span>Annual VIP renewal</span><span>Rs 45,000</span><span style="color: #6B6B73;">Bank transfer</span><span><span style="padding: 3px 9px; border-radius: 999px; background: #EAF5EE; color: #1F7A4D; font-size: 12px; font-weight: 600;">Paid</span></span></div>
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 12px; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">INV-1014</span><span>PT package — 20 sessions</span><span>Rs 20,000</span><span style="color: #6B6B73;">Cash</span><span><span style="padding: 3px 9px; border-radius: 999px; background: #FDF1EE; color: #C23B22; font-size: 12px; font-weight: 600;">Rs 5,000 due</span></span></div>
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 12px; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">INV-0977</span><span>Whey protein × 1</span><span>Rs 8,500</span><span style="color: #6B6B73;">Easypaisa</span><span><span style="padding: 3px 9px; border-radius: 999px; background: #EAF5EE; color: #1F7A4D; font-size: 12px; font-weight: 600;">Paid</span></span></div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; font-size: 13.5px;"><span style="color: #6B6B73;">Lifetime value</span><span style="font-weight: 700;">Rs 148,500</span></div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ tabIsAttendance }}">
+            <div style="margin-top: 14px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; padding: 11px 18px; background: #FAF9F6; border-bottom: 1px solid #EFEDE8; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">
+                <span>DATE</span><span>CHECK-IN</span><span>CHECK-OUT</span><span>DURATION</span><span>METHOD</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;"><span>19 Sep</span><span>7:12 PM</span><span>8:34 PM</span><span>1h 22m</span><span style="color: #6B6B73;">QR</span></div>
+              <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;"><span>17 Sep</span><span>6:58 PM</span><span>8:10 PM</span><span>1h 12m</span><span style="color: #6B6B73;">QR</span></div>
+              <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;"><span>15 Sep</span><span>7:40 PM</span><span>9:02 PM</span><span>1h 22m</span><span style="color: #6B6B73;">Manual</span></div>
+              <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; padding: 12px 18px; font-size: 13.5px;"><span>13 Sep</span><span>8:05 PM</span><span>9:15 PM</span><span>1h 10m</span><span style="color: #6B6B73;">QR</span></div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ tabIsTraining }}">
+            <div style="margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; align-items: start;">
+              <div style="padding: 18px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+                <div style="font-size: 14.5px; font-weight: 600;">PT package — 20 sessions</div>
+                <div style="margin-top: 16px; height: 8px; border-radius: 4px; background: #F0EEE9; overflow: hidden;"><div style="width: 65%; height: 100%; background: var(--accent);"></div></div>
+                <div style="margin-top: 10px; display: flex; justify-content: space-between; font-size: 13.5px;"><span>Used 13</span><span style="color: #6B6B73;">Remaining 7</span></div>
+                <div style="margin-top: 14px; padding: 12px; border-radius: 10px; background: #FAF9F6; font-size: 12.5px; color: #6B6B73;">Trainer Bilal K. · next session Monday 6:00 PM</div>
+              </div>
+              <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+                <div style="padding: 14px 18px; border-bottom: 1px solid #F0EEE9; font-size: 14.5px; font-weight: 600;">Workout plan — Push / Pull / Legs</div>
+                <div style="padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px; display: flex; justify-content: space-between;"><span>Bench press</span><span style="font-family: 'IBM Plex Mono', monospace; color: #6B6B73;">4 × 10</span></div>
+                <div style="padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px; display: flex; justify-content: space-between;"><span>Incline dumbbell press</span><span style="font-family: 'IBM Plex Mono', monospace; color: #6B6B73;">3 × 12</span></div>
+                <div style="padding: 12px 18px; font-size: 13.5px; display: flex; justify-content: space-between;"><span>Cable fly</span><span style="font-family: 'IBM Plex Mono', monospace; color: #6B6B73;">3 × 15</span></div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isCheckin }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px;">
+            <div>
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">Check-in desk</h1>
+              <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">41 in the gym · 137 check-ins today</div>
+            </div>
+          </div>
+          <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; align-items: start;">
+            <div style="padding: 24px; border-radius: 16px; background: #16161A; color: #FFFFFF; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; box-shadow: 0 1px 2px rgba(20,20,26,0.06), 0 24px 48px -32px rgba(20,20,26,1);">
+              <div style="width: 100%; max-width: 250px; aspect-ratio: 1; border-radius: 18px; border: 2px dashed #3A3A42; background: repeating-linear-gradient(45deg, #1B1B20, #1B1B20 8px, #202026 8px, #202026 16px); display: flex; align-items: center; justify-content: center;">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #6B6B73;">SCANNER VIEW</span>
+              </div>
+              <div style="font-size: 18px; font-weight: 700; letter-spacing: -0.02em;">Scan member QR</div>
+              <div style="font-size: 13px; color: #9A9AA2; max-width: 260px; line-height: 1.5;">Camera is live. Or look someone up by name, ID or phone.</div>
+              <div style="display: flex; gap: 8px; width: 100%; max-width: 330px;">
+                <input placeholder="Name, ID or phone" style="flex: 1; min-width: 0; padding: 12px 14px; border: 1px solid #2E2E35; border-radius: 10px; background: #1B1B20; color: #F2F1EF; font-family: Archivo, sans-serif; font-size: 14px; outline: none;" style-focus="border-color: #5A5A64;" />
+                <button style="padding: 12px 18px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="opacity: 0.9;">Check in</button>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <div style="padding: 18px; border-radius: 14px; background: #EAF5EE; border: 1px solid #BFE0CC; display: flex; gap: 14px; align-items: center;">
+                <div style="width: 50px; height: 50px; border-radius: 14px; flex: none; background: repeating-linear-gradient(45deg, #DCEEE3, #DCEEE3 5px, #CFE6D8 5px, #CFE6D8 10px);"></div>
+                <div style="min-width: 0;">
+                  <div style="font-size: 17px; font-weight: 700; letter-spacing: -0.02em;">Zainab Malik — allowed</div>
+                  <div style="margin-top: 4px; font-size: 13px; color: #1F7A4D;">Annual · valid to 12 Mar 2027 · 6th visit this week</div>
+                </div>
+              </div>
+              <div style="padding: 18px; border-radius: 14px; background: #FDF1EE; border: 1px solid #F5CFC5;">
+                <div style="display: flex; gap: 14px; align-items: center;">
+                  <div style="width: 50px; height: 50px; border-radius: 14px; flex: none; background: repeating-linear-gradient(45deg, #F7E1DB, #F7E1DB 5px, #F0D3CB 5px, #F0D3CB 10px);"></div>
+                  <div style="min-width: 0;">
+                    <div style="font-size: 17px; font-weight: 700; letter-spacing: -0.02em; color: #C23B22;">Faisal Mehmood — denied</div>
+                    <div style="margin-top: 4px; font-size: 13px; color: #96432C;">Expired 14 Sep · Rs 6,000 outstanding</div>
+                  </div>
+                </div>
+                <div style="margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px;">
+                  <button style="padding: 9px 14px; border: 0; border-radius: 9px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 12.5px; font-weight: 600; cursor: pointer;" style-hover="opacity: 0.9;">Renew now</button>
+                  <button onClick="{{ openPayment }}" style="padding: 9px 14px; border: 1px solid #E5C4BA; border-radius: 9px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 12.5px; font-weight: 600; cursor: pointer;" style-hover="border-color: #C23B22;">Take payment</button>
+                  <button style="padding: 9px 14px; border: 1px solid #E5C4BA; border-radius: 9px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 12.5px; font-weight: 600; cursor: pointer;" style-hover="border-color: #C23B22;">Override once</button>
+                </div>
+              </div>
+              <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+                <div style="padding: 14px 18px; border-bottom: 1px solid #F0EEE9; font-size: 14.5px; font-weight: 600;">Recent check-ins</div>
+                <sc-for list="{{ feed }}" as="row" hint-placeholder-count="5">
+                  <div style="display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;">
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #8A8A90;">{{ row.time }}</span>
+                    <span style="font-weight: 500;">{{ row.name }}</span>
+                    <span style="{{ row.tagStyle }}">{{ row.tag }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isPlans }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px;">
+            <div>
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">Memberships</h1>
+              <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">6 plans · 78% renewal rate this quarter</div>
+            </div>
+            <button style="padding: 10px 16px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 22px -14px rgba(232,70,42,0.95);" style-hover="transform: translateY(-1px);">+ New plan</button>
+          </div>
+
+          <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+            <div style="padding: 16px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">ACTIVE</div><div style="margin-top: 8px; font-size: 24px; font-weight: 700; white-space: nowrap;">412</div></div>
+            <div style="padding: 16px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">EXPIRING</div><div style="margin-top: 8px; font-size: 24px; font-weight: 700; color: var(--accent); white-space: nowrap;">18</div></div>
+            <div style="padding: 16px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">EXPIRED</div><div style="margin-top: 8px; font-size: 24px; font-weight: 700; white-space: nowrap;">63</div></div>
+            <div style="padding: 16px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">FROZEN</div><div style="margin-top: 8px; font-size: 24px; font-weight: 700; white-space: nowrap;">7</div></div>
+          </div>
+
+          <div style="margin-top: 14px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+            <div style="display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) minmax(0, 0.9fr) minmax(0, 0.8fr) minmax(0, 1.4fr) minmax(0, 0.7fr); gap: 12px; padding: 11px 18px; background: #FAF9F6; border-bottom: 1px solid #EFEDE8; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">
+              <span>PLAN</span><span>DURATION</span><span>PRICE</span><span>MEMBERS</span><span>INCLUDES</span><span>STATUS</span>
+            </div>
+            <sc-for list="{{ plans }}" as="p" hint-placeholder-count="6">
+              <div style="display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) minmax(0, 0.9fr) minmax(0, 0.8fr) minmax(0, 1.4fr) minmax(0, 0.7fr); gap: 12px; align-items: center; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;" style-hover="background: #FAF9F6;">
+                <span style="font-weight: 600;">{{ p.name }}</span>
+                <span style="color: #6B6B73;">{{ p.duration }}</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">{{ p.price }}</span>
+                <span style="color: #4E4E56;">{{ p.members }}</span>
+                <span style="color: #6B6B73;">{{ p.includes }}</span>
+                <span><span style="{{ p.pill }}">{{ p.status }}</span></span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="margin-top: 14px; padding: 18px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;">
+            <div style="font-size: 14.5px; font-weight: 600;">Renewal automation</div>
+            <div style="margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+              <span style="padding: 9px 14px; border-radius: 10px; background: #FAF9F6; border: 1px solid #EFEDE8; font-size: 13px;">7 days before · WhatsApp</span>
+              <span style="color: #C4C3BE;">→</span>
+              <span style="padding: 9px 14px; border-radius: 10px; background: #FAF9F6; border: 1px solid #EFEDE8; font-size: 13px;">3 days before · WhatsApp</span>
+              <span style="color: #C4C3BE;">→</span>
+              <span style="padding: 9px 14px; border-radius: 10px; background: #FAF9F6; border: 1px solid #EFEDE8; font-size: 13px;">1 day before · SMS + WhatsApp</span>
+              <span style="color: #C4C3BE;">→</span>
+              <span style="padding: 9px 14px; border-radius: 10px; background: #FDF1EE; border: 1px solid #F5CFC5; font-size: 13px; color: #C23B22;">Expired · renewal campaign</span>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isPayments }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px;">
+            <div>
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">Payments</h1>
+              <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">September · {{ branchLabel }}</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button style="padding: 10px 14px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">Export</button>
+              <button onClick="{{ openPayment }}" style="padding: 10px 16px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 22px -14px rgba(232,70,42,0.95);" style-hover="transform: translateY(-1px);">+ Record payment</button>
+            </div>
+          </div>
+
+          <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px;">
+            <div style="padding: 18px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">COLLECTED</div><div style="margin-top: 8px; font-size: clamp(20px, 2vw, 26px); font-weight: 700; white-space: nowrap;">Rs 1,840,000</div></div>
+            <div style="padding: 18px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">OUTSTANDING</div><div style="margin-top: 8px; font-size: clamp(20px, 2vw, 26px); font-weight: 700; color: var(--accent); white-space: nowrap;">Rs 41,000</div></div>
+            <div style="padding: 18px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">EXPENSES</div><div style="margin-top: 8px; font-size: clamp(20px, 2vw, 26px); font-weight: 700; white-space: nowrap;">Rs 940,000</div></div>
+            <div style="padding: 18px; border-radius: 14px; background: #16161A; color: #FFFFFF;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8E8E97;">NET PROFIT</div><div style="margin-top: 8px; font-size: clamp(20px, 2vw, 26px); font-weight: 700; white-space: nowrap;">Rs 900,000</div></div>
+          </div>
+
+          <div style="margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; align-items: start;">
+            <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.1fr); gap: 12px; padding: 11px 18px; background: #FAF9F6; border-bottom: 1px solid #EFEDE8; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">
+                <span>INVOICE</span><span>MEMBER</span><span>AMOUNT</span><span>METHOD</span><span>STATUS</span>
+              </div>
+              <sc-for list="{{ invoices }}" as="i" hint-placeholder-count="8">
+                <div style="display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.1fr); gap: 12px; align-items: center; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;" style-hover="background: #FAF9F6;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px;">{{ i.no }}</span>
+                  <span style="font-weight: 500;">{{ i.member }}</span>
+                  <span>{{ i.amount }}</span>
+                  <span style="color: #6B6B73;">{{ i.method }}</span>
+                  <span><span style="{{ i.pill }}">{{ i.status }}</span></span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="padding: 14px 18px; border-bottom: 1px solid #F0EEE9; font-size: 14.5px; font-weight: 600;">Receipt</div>
+              <div style="padding: 18px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4E4E56; line-height: 1.85;">
+                <div style="font-size: 13px; color: #16161A;">IRON HOUSE GYM — ISLAMABAD</div>
+                <div>RECEIPT INV-1088 · 19 SEP 2026</div>
+                <div style="margin: 12px 0; border-top: 1px dashed #D8D7D2;"></div>
+                <div style="display: flex; justify-content: space-between;"><span>Annual VIP</span><span>45,000</span></div>
+                <div style="display: flex; justify-content: space-between;"><span>Discount</span><span>−5,000</span></div>
+                <div style="margin: 12px 0; border-top: 1px dashed #D8D7D2;"></div>
+                <div style="display: flex; justify-content: space-between; color: #16161A; font-size: 13px;"><span>TOTAL PAID</span><span>RS 40,000</span></div>
+                <div>BANK TRANSFER · SANA (RECEPTION)</div>
+              </div>
+              <div style="padding: 14px 18px; border-top: 1px solid #F0EEE9; display: flex; gap: 8px;">
+                <button style="flex: 1; padding: 10px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">Print</button>
+                <button style="flex: 1; padding: 10px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">WhatsApp</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isLeads }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px;">
+            <div>
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">Leads</h1>
+              <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">100 leads this month → 12 members · 12% conversion</div>
+            </div>
+            <button style="padding: 10px 16px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 22px -14px rgba(232,70,42,0.95);" style-hover="transform: translateY(-1px);">+ Add lead</button>
+          </div>
+          <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; align-items: start;">
+            <sc-for list="{{ pipeline }}" as="col" hint-placeholder-count="5">
+              <div style="border-radius: 14px; background: #EFEDE8; padding: 10px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px 8px 10px;">
+                  <span style="font-size: 13px; font-weight: 700; letter-spacing: -0.01em;">{{ col.title }}</span>
+                  <span style="padding: 2px 8px; border-radius: 999px; background: #FFFFFF; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #6B6B73;">{{ col.count }}</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <sc-for list="{{ col.cards }}" as="c" hint-placeholder-count="3">
+                    <div style="padding: 13px; border-radius: 11px; background: #FFFFFF; border: 1px solid #E8E6E1; cursor: grab; box-shadow: 0 1px 2px rgba(20,20,26,0.03);" style-hover="box-shadow: 0 8px 20px -14px rgba(20,20,26,0.8); transform: translateY(-1px);">
+                      <div style="font-size: 13.5px; font-weight: 600;">{{ c.name }}</div>
+                      <div style="margin-top: 3px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8A8A90;">{{ c.phone }}</div>
+                      <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 5px;">
+                        <span style="padding: 3px 8px; border-radius: 999px; background: #F5F3EF; font-size: 11px; color: #4E4E56;">{{ c.source }}</span>
+                        <span style="{{ c.dueStyle }}">{{ c.due }}</span>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isClasses }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px;">
+            <div>
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">Classes</h1>
+              <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">Week of 14–20 Sep · 82% average fill · 11 on waitlists</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button style="padding: 10px 14px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">Week</button>
+              <button style="padding: 10px 16px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 22px -14px rgba(232,70,42,0.95);" style-hover="transform: translateY(-1px);">+ Schedule class</button>
+            </div>
+          </div>
+
+          <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; align-items: start;">
+            <sc-for list="{{ week }}" as="d" hint-placeholder-count="6">
+              <div style="border-radius: 14px; background: #EFEDE8; padding: 10px;">
+                <div style="display: flex; align-items: baseline; justify-content: space-between; padding: 4px 8px 10px;">
+                  <span style="font-size: 13px; font-weight: 700;">{{ d.day }}</span>
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8A8A90;">{{ d.date }}</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <sc-for list="{{ d.sessions }}" as="c" hint-placeholder-count="3">
+                    <div onClick="{{ c.open }}" style="padding: 12px; border-radius: 11px; background: #FFFFFF; border: 1px solid #E8E6E1; cursor: pointer; box-shadow: 0 1px 2px rgba(20,20,26,0.03);" style-hover="transform: translateY(-1px); box-shadow: 0 10px 22px -16px rgba(20,20,26,0.9);">
+                      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8A8A90;">{{ c.time }}</div>
+                      <div style="margin-top: 5px; font-size: 13.5px; font-weight: 600;">{{ c.name }}</div>
+                      <div style="margin-top: 2px; font-size: 12px; color: #6B6B73;">{{ c.coach }}</div>
+                      <div style="margin-top: 9px; height: 5px; border-radius: 3px; background: #F0EEE9; overflow: hidden;"><div style="{{ c.barStyle }}"></div></div>
+                      <div style="margin-top: 6px; display: flex; justify-content: space-between; font-size: 11.5px; color: #6B6B73;"><span>{{ c.fill }}</span><span style="{{ c.tagStyle }}">{{ c.tag }}</span></div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isTrainers }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px;">
+            <div>
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">Trainers &amp; PT</h1>
+              <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">6 trainers · 148 sessions delivered in September</div>
+            </div>
+            <button style="padding: 10px 16px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 22px -14px rgba(232,70,42,0.95);" style-hover="transform: translateY(-1px);">+ Sell PT package</button>
+          </div>
+
+          <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
+            <sc-for list="{{ trainers }}" as="t" hint-placeholder-count="4">
+              <div style="padding: 16px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 40px; height: 40px; border-radius: 12px; flex: none; background: repeating-linear-gradient(45deg, #EFEDE8, #EFEDE8 5px, #E4E2DC 5px, #E4E2DC 10px);"></div>
+                  <div style="min-width: 0;">
+                    <div style="font-size: 14.5px; font-weight: 700; letter-spacing: -0.01em;">{{ t.name }}</div>
+                    <div style="font-size: 12px; color: #8A8A90;">{{ t.role }}</div>
+                  </div>
+                  <span style="margin-left: auto; {{ t.pill }}">{{ t.status }}</span>
+                </div>
+                <div style="margin-top: 14px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;">
+                  <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">CLIENTS</div><div style="margin-top: 4px; font-size: 16px; font-weight: 700;">{{ t.clients }}</div></div>
+                  <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">SESSIONS</div><div style="margin-top: 4px; font-size: 16px; font-weight: 700;">{{ t.sessions }}</div></div>
+                  <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">COMMISSION</div><div style="margin-top: 4px; font-size: 16px; font-weight: 700; white-space: nowrap;">{{ t.commission }}</div></div>
+                </div>
+                <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #F0EEE9; font-size: 12.5px; color: #6B6B73;">Next: {{ t.next }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="margin-top: 14px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+            <div style="display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 0.9fr); gap: 12px; padding: 11px 18px; background: #FAF9F6; border-bottom: 1px solid #EFEDE8; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">
+              <span>MEMBER</span><span>TRAINER</span><span>PACKAGE</span><span>REMAINING</span><span>EXPIRES</span>
+            </div>
+            <sc-for list="{{ ptPackages }}" as="p" hint-placeholder-count="5">
+              <div style="display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 0.9fr); gap: 12px; align-items: center; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;" style-hover="background: #FAF9F6;">
+                <span style="font-weight: 600;">{{ p.member }}</span>
+                <span style="color: #6B6B73;">{{ p.trainer }}</span>
+                <span style="color: #4E4E56;">{{ p.package }}</span>
+                <span style="display: flex; align-items: center; gap: 8px;"><span style="flex: 1; min-width: 40px; height: 5px; border-radius: 3px; background: #F0EEE9; overflow: hidden;"><span style="{{ p.barStyle }}"></span></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; {{ p.remainColor }}">{{ p.remaining }}</span></span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #6B6B73;">{{ p.expires }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isStore }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px;">
+            <div>
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">Store</h1>
+              <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">Counter sales · 3 items below minimum stock</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 16px; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 14px; align-items: start;">
+            <div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                <sc-for list="{{ products }}" as="p" hint-placeholder-count="6">
+                  <div onClick="{{ p.add }}" style="padding: 14px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; cursor: pointer; box-shadow: 0 1px 2px rgba(20,20,26,0.03);" style-hover="transform: translateY(-2px); box-shadow: 0 14px 28px -20px rgba(20,20,26,0.9);">
+                    <div style="height: 64px; border-radius: 10px; background: repeating-linear-gradient(45deg, #F5F3EF, #F5F3EF 6px, #EBE8E2 6px, #EBE8E2 12px);"></div>
+                    <div style="margin-top: 10px; font-size: 13.5px; font-weight: 600;">{{ p.name }}</div>
+                    <div style="margin-top: 4px; display: flex; align-items: center; justify-content: space-between;">
+                      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">{{ p.price }}</span>
+                      <span style="{{ p.stockStyle }}">{{ p.stock }}</span>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #F0EEE9;">
+                <span style="font-size: 14.5px; font-weight: 700;">Current sale</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8A8A90;">{{ cartCount }}</span>
+              </div>
+              <sc-if value="{{ cartEmpty }}">
+                <div style="padding: 28px 18px; text-align: center; font-size: 13px; color: #8A8A90;">Tap a product to start a sale.</div>
+              </sc-if>
+              <sc-for list="{{ cart }}" as="c" hint-placeholder-count="2">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;">
+                  <span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ c.name }}</span>
+                  <span style="display: flex; align-items: center; gap: 6px; flex: none;">
+                    <button onClick="{{ c.remove }}" style="width: 24px; height: 24px; border: 1px solid #E8E6E1; border-radius: 8px; background: #FFFFFF; cursor: pointer; color: #6B6B73;" style-hover="border-color: #16161A;">−</button>
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; min-width: 16px; text-align: center;">{{ c.qty }}</span>
+                    <button onClick="{{ c.add }}" style="width: 24px; height: 24px; border: 1px solid #E8E6E1; border-radius: 8px; background: #FFFFFF; cursor: pointer; color: #6B6B73;" style-hover="border-color: #16161A;">+</button>
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; min-width: 58px; text-align: right;">{{ c.line }}</span>
+                  </span>
+                </div>
+              </sc-for>
+              <div style="padding: 16px 18px; border-top: 1px solid #F0EEE9;">
+                <div style="display: flex; justify-content: space-between; font-size: 13.5px; color: #6B6B73;"><span>Subtotal</span><span>{{ cartTotal }}</span></div>
+                <div style="margin-top: 8px; display: flex; justify-content: space-between; font-size: 16px; font-weight: 700;"><span>Total</span><span>{{ cartTotal }}</span></div>
+                <button onClick="{{ checkout }}" style="margin-top: 14px; width: 100%; padding: 12px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="opacity: 0.9;">Charge &amp; print receipt</button>
+                <button onClick="{{ chargeToMember }}" style="margin-top: 8px; width: 100%; padding: 12px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">Charge to member account</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isExpenses }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px;">
+            <div>
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">Expenses</h1>
+              <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">September · {{ branchLabel }}</div>
+            </div>
+            <button style="padding: 10px 16px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 22px -14px rgba(232,70,42,0.95);" style-hover="transform: translateY(-1px);">+ Add expense</button>
+          </div>
+
+          <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; align-items: start;">
+            <div style="padding: 18px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;">
+              <div style="font-size: 14.5px; font-weight: 700;">Where the money went</div>
+              <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 14px;">
+                <sc-for list="{{ expenseCats }}" as="c" hint-placeholder-count="5">
+                  <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13.5px;"><span>{{ c.name }}</span><span style="font-weight: 600;">{{ c.amount }}</span></div>
+                    <div style="margin-top: 7px; height: 7px; border-radius: 4px; background: #F0EEE9; overflow: hidden;"><div style="{{ c.barStyle }}"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 0.9fr); gap: 12px; padding: 11px 18px; background: #FAF9F6; border-bottom: 1px solid #EFEDE8; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">
+                <span>DATE</span><span>ITEM</span><span>AMOUNT</span><span>STATUS</span>
+              </div>
+              <sc-for list="{{ expenses }}" as="e" hint-placeholder-count="6">
+                <div style="display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 0.9fr); gap: 12px; align-items: center; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;" style-hover="background: #FAF9F6;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #8A8A90;">{{ e.date }}</span>
+                  <span style="font-weight: 500;">{{ e.item }}</span>
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">{{ e.amount }}</span>
+                  <span><span style="{{ e.pill }}">{{ e.status }}</span></span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isReports }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px;">
+            <div>
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">Reports</h1>
+              <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">Last 6 months · all branches</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button style="padding: 10px 14px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">Excel</button>
+              <button style="padding: 10px 14px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">PDF</button>
+            </div>
+          </div>
+
+          <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px;">
+            <div style="padding: 18px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">MEMBER GROWTH</div><div style="margin-top: 8px; font-size: 24px; font-weight: 700;">+11.4%</div><div style="margin-top: 4px; font-size: 12px; color: #1F7A4D;">+84 net members</div></div>
+            <div style="padding: 18px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">CHURN</div><div style="margin-top: 8px; font-size: 24px; font-weight: 700; color: var(--accent);">6.2%</div><div style="margin-top: 4px; font-size: 12px; color: #6B6B73;">−0.8 pts vs Q2</div></div>
+            <div style="padding: 18px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">AVG REVENUE / MEMBER</div><div style="margin-top: 8px; font-size: 24px; font-weight: 700; white-space: nowrap;">Rs 4,460</div></div>
+            <div style="padding: 18px; border-radius: 14px; background: #16161A; color: #FFFFFF;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8E8E97;">PROFIT MARGIN</div><div style="margin-top: 8px; font-size: 24px; font-weight: 700;">48.9%</div><div style="margin-top: 4px; font-size: 12px; color: #7FD2A3;">+3.1 pts</div></div>
+          </div>
+
+          <div style="margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; align-items: start;">
+            <div style="padding: 18px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;">
+              <div style="display: flex; align-items: baseline; justify-content: space-between;">
+                <span style="font-size: 14.5px; font-weight: 700;">Revenue vs expenses</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8A8A90;">PKR · 6 MONTHS</span>
+              </div>
+              <div style="margin-top: 20px; display: flex; align-items: flex-end; gap: 14px; height: 180px;">
+                <sc-for list="{{ months }}" as="m" hint-placeholder-count="6">
+                  <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%;">
+                    <div style="flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; gap: 4px;">
+                      <div style="{{ m.revStyle }}"></div>
+                      <div style="{{ m.expStyle }}"></div>
+                    </div>
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: #8A8A90;">{{ m.label }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="margin-top: 14px; display: flex; gap: 16px; font-size: 12.5px; color: #6B6B73;">
+                <span style="display: flex; align-items: center; gap: 7px;"><span style="width: 9px; height: 9px; border-radius: 3px; background: var(--accent);"></span>Revenue</span>
+                <span style="display: flex; align-items: center; gap: 7px;"><span style="width: 9px; height: 9px; border-radius: 3px; background: #D8D5CE;"></span>Expenses</span>
+              </div>
+            </div>
+
+            <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden;">
+              <div style="padding: 14px 18px; border-bottom: 1px solid #F0EEE9; font-size: 14.5px; font-weight: 700;">Branch comparison</div>
+              <div style="display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.9fr); gap: 12px; padding: 11px 18px; background: #FAF9F6; border-bottom: 1px solid #EFEDE8; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">
+                <span>BRANCH</span><span>MEMBERS</span><span>REVENUE</span><span>MARGIN</span>
+              </div>
+              <sc-for list="{{ branchRows }}" as="b" hint-placeholder-count="3">
+                <div style="display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.9fr); gap: 12px; align-items: center; padding: 13px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;" style-hover="background: #FAF9F6;">
+                  <span style="font-weight: 600;">{{ b.name }}</span>
+                  <span style="color: #4E4E56;">{{ b.members }}</span>
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">{{ b.revenue }}</span>
+                  <span style="{{ b.marginStyle }}">{{ b.margin }}</span>
+                </div>
+              </sc-for>
+              <div style="padding: 14px 18px; font-size: 12.5px; color: #6B6B73;">Attendance peaks 7–9 PM across all branches; Lahore is 22% below floor capacity at midday.</div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isStaff }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px;">
+            <div>
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">Staff</h1>
+              <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">14 employees · 11 clocked in today · payroll due 30 Sep</div>
+            </div>
+            <button style="padding: 10px 16px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 22px -14px rgba(232,70,42,0.95);" style-hover="transform: translateY(-1px);">+ Add staff</button>
+          </div>
+
+          <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px;">
+            <div style="padding: 16px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">ON SHIFT NOW</div><div style="margin-top: 8px; font-size: 24px; font-weight: 700;">6</div></div>
+            <div style="padding: 16px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">LATE THIS WEEK</div><div style="margin-top: 8px; font-size: 24px; font-weight: 700; color: var(--accent);">3</div></div>
+            <div style="padding: 16px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">ON LEAVE</div><div style="margin-top: 8px; font-size: 24px; font-weight: 700;">2</div></div>
+            <div style="padding: 16px; border-radius: 14px; background: #16161A; color: #FFFFFF;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8E8E97;">MONTHLY PAYROLL</div><div style="margin-top: 8px; font-size: 24px; font-weight: 700; white-space: nowrap;">Rs 480,000</div></div>
+          </div>
+
+          <div style="margin-top: 14px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+            <div style="display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.9fr); gap: 12px; padding: 11px 18px; background: #FAF9F6; border-bottom: 1px solid #EFEDE8; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">
+              <span>EMPLOYEE</span><span>ROLE</span><span>BRANCH</span><span>SALARY</span><span>CLOCKED IN</span><span>STATUS</span>
+            </div>
+            <sc-for list="{{ staffRows }}" as="u" hint-placeholder-count="6">
+              <div style="display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.9fr); gap: 12px; align-items: center; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;" style-hover="background: #FAF9F6;">
+                <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                  <div style="width: 30px; height: 30px; border-radius: 10px; flex: none; background: repeating-linear-gradient(45deg, #EFEDE8, #EFEDE8 5px, #E4E2DC 5px, #E4E2DC 10px);"></div>
+                  <span style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ u.name }}</span>
+                </div>
+                <span style="color: #6B6B73;">{{ u.role }}</span>
+                <span style="color: #6B6B73;">{{ u.branch }}</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">{{ u.salary }}</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #6B6B73;">{{ u.clockIn }}</span>
+                <span><span style="{{ u.pill }}">{{ u.status }}</span></span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isTemplates }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px;">
+            <div>
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">Messaging</h1>
+              <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">6 templates · 412 messages sent this month · 94% delivered</div>
+            </div>
+            <button style="padding: 10px 16px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 22px -14px rgba(232,70,42,0.95);" style-hover="transform: translateY(-1px);">+ New template</button>
+          </div>
+
+          <div style="margin-top: 16px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 14px; align-items: start;">
+            <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="padding: 14px 18px; border-bottom: 1px solid #F0EEE9; font-size: 14.5px; font-weight: 700;">Templates</div>
+              <sc-for list="{{ templates }}" as="t" hint-placeholder-count="6">
+                <div onClick="{{ t.select }}" style="{{ t.rowStyle }}">
+                  <div style="min-width: 0;">
+                    <div style="font-size: 13.5px; font-weight: 600;">{{ t.name }}</div>
+                    <div style="margin-top: 3px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8A8A90;">{{ t.trigger }}</div>
+                  </div>
+                  <span style="{{ t.channelStyle }}">{{ t.channel }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #F0EEE9;">
+                  <span style="font-size: 14.5px; font-weight: 700;">{{ tpl.name }}</span>
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #8A8A90;">{{ tpl.trigger }}</span>
+                </div>
+                <div style="padding: 18px;">
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">MESSAGE BODY</div>
+                  <textarea value="{{ tpl.body }}" onChange="{{ onTemplateBody }}" style="margin-top: 8px; width: 100%; min-height: 120px; padding: 14px; border: 1px solid #E8E6E1; border-radius: 12px; background: #FAF9F6; font-family: Archivo, sans-serif; font-size: 13.5px; line-height: 1.6; color: #16161A; resize: vertical; outline: none;" style-focus="border-color: #16161A; background: #FFFFFF;"></textarea>
+                  <div style="margin-top: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">INSERT VARIABLE</div>
+                  <div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px;">
+                    <sc-for list="{{ variables }}" as="v" hint-placeholder-count="5">
+                      <button onClick="{{ v.insert }}" style="padding: 6px 11px; border: 1px solid #E8E6E1; border-radius: 999px; background: #FFFFFF; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #4E4E56; cursor: pointer;" style-hover="border-color: #16161A; color: #16161A;">{{ v.token }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+
+              <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden;">
+                <div style="padding: 14px 18px; border-bottom: 1px solid #F0EEE9; font-size: 14.5px; font-weight: 700;">Preview — as Hassan receives it</div>
+                <div style="padding: 18px; background: #F5F3EF;">
+                  <div style="max-width: 90%; padding: 13px 16px; border-radius: 14px 14px 14px 4px; background: #FFFFFF; border: 1px solid #E8E6E1; font-size: 13.5px; line-height: 1.55; color: #16161A; white-space: pre-wrap;">{{ tplPreview }}</div>
+                  <div style="margin-top: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: #8A8A90;">{{ tpl.channel }} · SENT TO {{ tpl.sent }} MEMBERS THIS MONTH</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isDocuments }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px;">
+            <div>
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">Documents</h1>
+              <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">318 files · 12 waivers missing · 4 expiring certifications</div>
+            </div>
+            <button style="padding: 10px 16px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 22px -14px rgba(232,70,42,0.95);" style-hover="transform: translateY(-1px);">Upload</button>
+          </div>
+
+          <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; align-items: start;">
+            <div style="padding: 18px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;">
+              <div style="font-size: 14.5px; font-weight: 700;">Compliance</div>
+              <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 14px;">
+                <sc-for list="{{ compliance }}" as="c" hint-placeholder-count="4">
+                  <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13.5px;"><span>{{ c.name }}</span><span style="{{ c.valueStyle }}">{{ c.value }}</span></div>
+                    <div style="margin-top: 7px; height: 7px; border-radius: 4px; background: #F0EEE9; overflow: hidden;"><div style="{{ c.barStyle }}"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="margin-top: 18px; padding: 14px; border-radius: 12px; border: 1px dashed #D8D5CE; text-align: center; font-size: 13px; color: #8A8A90;">Drop files here — PDF, JPG or PNG up to 10 MB</div>
+            </div>
+
+            <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 0.9fr); gap: 12px; padding: 11px 18px; background: #FAF9F6; border-bottom: 1px solid #EFEDE8; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">
+                <span>FILE</span><span>OWNER</span><span>UPLOADED</span><span>STATUS</span>
+              </div>
+              <sc-for list="{{ documents }}" as="d" hint-placeholder-count="6">
+                <div style="display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 0.9fr); gap: 12px; align-items: center; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;" style-hover="background: #FAF9F6;">
+                  <span style="font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ d.file }}</span>
+                  <span style="color: #6B6B73;">{{ d.owner }}</span>
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #8A8A90;">{{ d.date }}</span>
+                  <span><span style="{{ d.pill }}">{{ d.status }}</span></span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isInventory }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px;">
+            <div>
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">Inventory</h1>
+              <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">Stock value Rs 486,000 · 3 items below minimum · 1 purchase order open</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button style="padding: 10px 14px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">Suppliers</button>
+              <button style="padding: 10px 16px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 22px -14px rgba(232,70,42,0.95);" style-hover="transform: translateY(-1px);">+ Purchase order</button>
+            </div>
+          </div>
+
+          <div style="margin-top: 16px; padding: 14px 18px; border-radius: 14px; background: #FDF1EE; border: 1px solid #F5CFC5; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+            <span style="font-size: 13.5px; color: #C23B22;">Whey Protein 2kg, Shaker bottle and Training gloves are below minimum stock.</span>
+            <button style="padding: 8px 14px; border: 0; border-radius: 9px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 12.5px; font-weight: 600; cursor: pointer;" style-hover="opacity: 0.9;">Reorder all three</button>
+          </div>
+
+          <div style="margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; align-items: start;">
+            <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="padding: 14px 18px; border-bottom: 1px solid #F0EEE9; font-size: 14.5px; font-weight: 700;">Stock levels</div>
+              <div style="display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 1fr); gap: 12px; padding: 11px 18px; background: #FAF9F6; border-bottom: 1px solid #EFEDE8; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">
+                <span>PRODUCT</span><span>ON HAND</span><span>MIN</span><span>VALUE</span>
+              </div>
+              <sc-for list="{{ stock }}" as="s" hint-placeholder-count="6">
+                <div style="display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 1fr); gap: 12px; align-items: center; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;" style-hover="background: #FAF9F6;">
+                  <span style="font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ s.name }}</span>
+                  <span style="{{ s.onHandStyle }}">{{ s.onHand }}</span>
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #8A8A90;">{{ s.min }}</span>
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">{{ s.value }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="padding: 14px 18px; border-bottom: 1px solid #F0EEE9; font-size: 14.5px; font-weight: 700;">Recent movements</div>
+              <sc-for list="{{ movements }}" as="m" hint-placeholder-count="6">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8A8A90; flex: none;">{{ m.date }}</span>
+                  <span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ m.what }}</span>
+                  <span style="{{ m.deltaStyle }}">{{ m.delta }}</span>
+                </div>
+              </sc-for>
+              <div style="padding: 14px 18px; font-size: 12.5px; color: #6B6B73;">Every counter sale writes a stock movement automatically.</div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isImport }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div>
+            <button onClick="{{ goMembers }}" style="padding: 4px 0; border: 0; background: transparent; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #8A8A90; cursor: pointer;" style-hover="color: #16161A;">← MEMBERS</button>
+            <h1 style="margin: 10px 0 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">Import members</h1>
+            <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">Bring your Excel or CSV sheet across. Nothing is written until you confirm.</div>
+          </div>
+
+          <div style="margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+            <sc-for list="{{ importSteps }}" as="st" hint-placeholder-count="4">
+              <button onClick="{{ st.go }}" style="{{ st.style }}"><span style="{{ st.numStyle }}">{{ st.num }}</span><span>{{ st.label }}</span></button>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ importStep1 }}">
+            <div style="margin-top: 16px; padding: 40px 24px; border-radius: 14px; background: #FFFFFF; border: 1px dashed #D8D5CE; text-align: center;">
+              <div style="font-size: 16px; font-weight: 700;">Drop your file here</div>
+              <div style="margin-top: 6px; font-size: 13.5px; color: #6B6B73;">CSV or XLSX, up to 5,000 rows. First row should be your column headings.</div>
+              <button onClick="{{ importNext }}" style="margin-top: 18px; padding: 11px 20px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="opacity: 0.9;">Use members-sept.xlsx</button>
+              <div style="margin-top: 12px; font-size: 12.5px; color: #8A8A90;">Or <span style="color: var(--accent);">download our template</span></div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ importStep2 }}">
+            <div style="margin-top: 16px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 0.8fr); gap: 12px; padding: 11px 18px; background: #FAF9F6; border-bottom: 1px solid #EFEDE8; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">
+                <span>YOUR COLUMN</span><span>SAMPLE VALUE</span><span>REPSET FIELD</span><span>MATCH</span>
+              </div>
+              <sc-for list="{{ mapping }}" as="m" hint-placeholder-count="7">
+                <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 0.8fr); gap: 12px; align-items: center; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;">
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">{{ m.source }}</span>
+                  <span style="color: #8A8A90; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ m.sample }}</span>
+                  <span style="padding: 7px 11px; border: 1px solid #E8E6E1; border-radius: 9px; background: #FAF9F6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ m.field }}</span>
+                  <span style="{{ m.pill }}">{{ m.match }}</span>
+                </div>
+              </sc-for>
+              <div style="padding: 14px 18px; display: flex; justify-content: flex-end; gap: 8px;">
+                <button onClick="{{ importBack }}" style="padding: 10px 16px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">Back</button>
+                <button onClick="{{ importNext }}" style="padding: 10px 18px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="opacity: 0.9;">Preview import</button>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ importStep3 }}">
+            <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px;">
+              <div style="padding: 16px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">ROWS FOUND</div><div style="margin-top: 8px; font-size: 24px; font-weight: 700;">318</div></div>
+              <div style="padding: 16px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">WILL BE CREATED</div><div style="margin-top: 8px; font-size: 24px; font-weight: 700; color: #1F7A4D;">301</div></div>
+              <div style="padding: 16px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #8A8A90;">DUPLICATES SKIPPED</div><div style="margin-top: 8px; font-size: 24px; font-weight: 700;">11</div></div>
+              <div style="padding: 16px; border-radius: 14px; background: #FDF1EE; border: 1px solid #F5CFC5;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #C23B22;">NEED FIXING</div><div style="margin-top: 8px; font-size: 24px; font-weight: 700; color: var(--accent);">6</div></div>
+            </div>
+            <div style="margin-top: 14px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden;">
+              <div style="padding: 14px 18px; border-bottom: 1px solid #F0EEE9; font-size: 14.5px; font-weight: 700;">Rows that need a decision</div>
+              <sc-for list="{{ importIssues }}" as="r" hint-placeholder-count="4">
+                <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;">
+                  <span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8A8A90; margin-right: 10px;">{{ r.row }}</span>{{ r.text }}</span>
+                  <span style="{{ r.pill }}">{{ r.action }}</span>
+                </div>
+              </sc-for>
+              <div style="padding: 14px 18px; display: flex; justify-content: flex-end; gap: 8px;">
+                <button onClick="{{ importBack }}" style="padding: 10px 16px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">Back</button>
+                <button onClick="{{ runImport }}" style="padding: 10px 18px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="opacity: 0.9;">Import 301 members</button>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ importStep4 }}">
+            <div style="margin-top: 16px; padding: 40px 24px; border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; text-align: center;">
+              <div style="width: 46px; height: 46px; margin: 0 auto; border-radius: 50%; background: #E9F3EC; color: #1F7A4D; display: flex; align-items: center; justify-content: center; font-size: 22px;">✓</div>
+              <div style="margin-top: 14px; font-size: 18px; font-weight: 700;">301 members imported</div>
+              <div style="margin-top: 6px; font-size: 13.5px; color: #6B6B73;">11 duplicates skipped, 6 rows parked for review. Membership dates and balances carried over.</div>
+              <div style="margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+                <button onClick="{{ goMembers }}" style="padding: 11px 20px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="opacity: 0.9;">View members</button>
+                <button onClick="{{ importRestart }}" style="padding: 11px 20px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">Import another file</button>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isSettings }}">
+        <div style="animation: riseIn 260ms ease both;">
+          <div>
+            <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.03em;">Settings &amp; roles</h1>
+            <div style="margin-top: 5px; font-size: 14px; color: #6B6B73;">Iron House Gym · 3 branches · 14 staff accounts</div>
+          </div>
+
+          <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; align-items: start;">
+            <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #F0EEE9;">
+                <span style="font-size: 14.5px; font-weight: 700;">Staff</span>
+                <button style="padding: 7px 12px; border: 1px solid #E8E6E1; border-radius: 9px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 12.5px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">+ Invite</button>
+              </div>
+              <sc-for list="{{ staff }}" as="u" hint-placeholder-count="5">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-bottom: 1px solid #F5F3EF;">
+                  <div style="width: 32px; height: 32px; border-radius: 10px; flex: none; background: repeating-linear-gradient(45deg, #EFEDE8, #EFEDE8 5px, #E4E2DC 5px, #E4E2DC 10px);"></div>
+                  <div style="min-width: 0; flex: 1;">
+                    <div style="font-size: 13.5px; font-weight: 600;">{{ u.name }}</div>
+                    <div style="font-size: 12px; color: #8A8A90;">{{ u.branch }}</div>
+                  </div>
+                  <span style="padding: 4px 10px; border-radius: 999px; background: #F5F3EF; font-size: 12px; color: #4E4E56; white-space: nowrap;">{{ u.role }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden; box-shadow: 0 1px 2px rgba(20,20,26,0.03);">
+              <div style="padding: 14px 18px; border-bottom: 1px solid #F0EEE9; font-size: 14.5px; font-weight: 700;">Permissions</div>
+              <div style="display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(4, minmax(0, 1fr)); gap: 8px; padding: 11px 18px; background: #FAF9F6; border-bottom: 1px solid #EFEDE8; font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: 0.06em; color: #8A8A90;">
+                <span>MODULE</span><span>OWNER</span><span>MANAGER</span><span>RECEPTION</span><span>TRAINER</span>
+              </div>
+              <sc-for list="{{ perms }}" as="p" hint-placeholder-count="6">
+                <div style="display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(4, minmax(0, 1fr)); gap: 8px; align-items: center; padding: 11px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13px;">
+                  <span>{{ p.module }}</span>
+                  <span style="{{ p.s1 }}">{{ p.v1 }}</span>
+                  <span style="{{ p.s2 }}">{{ p.v2 }}</span>
+                  <span style="{{ p.s3 }}">{{ p.v3 }}</span>
+                  <span style="{{ p.s4 }}">{{ p.v4 }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="border-radius: 14px; background: #FFFFFF; border: 1px solid #E8E6E1; overflow: hidden;">
+              <div style="padding: 14px 18px; border-bottom: 1px solid #F0EEE9; font-size: 14.5px; font-weight: 700;">Gym preferences</div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;"><span>Currency &amp; locale</span><span style="color: #6B6B73;">PKR · en-PK</span></div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;"><span>WhatsApp sender</span><span style="color: #6B6B73;">+92 300 1112233</span></div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid #F5F3EF; font-size: 13.5px;"><span>Invoice prefix</span><span style="font-family: 'IBM Plex Mono', monospace; color: #6B6B73;">INV-</span></div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; font-size: 13.5px;"><span>Two-factor for owners</span><span style="padding: 3px 9px; border-radius: 999px; background: #E9F3EC; color: #1F7A4D; font-size: 12px; font-weight: 500;">Required</span></div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </main>
+
+  <sc-if value="{{ paymentOpen }}">
+    <div onClick="{{ closePayment }}" style="position: absolute; inset: 0; background: rgba(18,18,21,0.42); backdrop-filter: blur(2px); z-index: 60;"></div>
+  </sc-if>
+  <sc-if value="{{ paymentOpen }}">
+    <div style="position: absolute; top: 0; right: 0; bottom: 0; width: min(420px, 92%); z-index: 61; background: #FFFFFF; border-left: 1px solid #E8E6E1; box-shadow: -30px 0 60px -40px rgba(20,20,26,0.9); display: flex; flex-direction: column; animation: slideOver 220ms ease both;">
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #F0EEE9;">
+        <div>
+          <div style="font-size: 17px; font-weight: 700; letter-spacing: -0.02em;">Record payment</div>
+          <div style="margin-top: 3px; font-size: 12.5px; color: #8A8A90;">{{ sel.name }} · {{ sel.id }}</div>
+        </div>
+        <button onClick="{{ closePayment }}" style="width: 32px; height: 32px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-size: 15px; color: #6B6B73; cursor: pointer;" style-hover="border-color: #16161A; color: #16161A;">✕</button>
+      </div>
+      <div style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 18px;">
+        <div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">AMOUNT (PKR)</div>
+          <input value="{{ amount }}" onChange="{{ onAmount }}" style="margin-top: 8px; width: 100%; padding: 14px 16px; border: 1px solid #E8E6E1; border-radius: 12px; background: #FAF9F6; font-family: Archivo, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; color: #16161A; outline: none;" style-focus="border-color: #16161A; background: #FFFFFF;" />
+          <div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px;">
+            <button onClick="{{ amt5000 }}" style="padding: 6px 12px; border: 1px solid #E8E6E1; border-radius: 999px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #16161A;">5,000</button>
+            <button onClick="{{ amt13500 }}" style="padding: 6px 12px; border: 1px solid #E8E6E1; border-radius: 999px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #16161A;">13,500</button>
+            <button onClick="{{ amt45000 }}" style="padding: 6px 12px; border: 1px solid #E8E6E1; border-radius: 999px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 12.5px; cursor: pointer;" style-hover="border-color: #16161A;">45,000</button>
+          </div>
+        </div>
+        <div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">METHOD</div>
+          <div style="margin-top: 8px; display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px;">
+            <button onClick="{{ methodCash }}" style="{{ methodCashStyle }}">Cash</button>
+            <button onClick="{{ methodBank }}" style="{{ methodBankStyle }}">Bank transfer</button>
+            <button onClick="{{ methodEasypaisa }}" style="{{ methodEasypaisaStyle }}">Easypaisa</button>
+            <button onClick="{{ methodJazzcash }}" style="{{ methodJazzcashStyle }}">JazzCash</button>
+          </div>
+        </div>
+        <div style="padding: 16px; border-radius: 12px; background: #FAF9F6; border: 1px solid #EFEDE8;">
+          <div style="display: flex; justify-content: space-between; font-size: 13.5px;"><span style="color: #6B6B73;">Outstanding before</span><span style="font-weight: 600;">Rs 5,000</span></div>
+          <div style="margin-top: 8px; display: flex; justify-content: space-between; font-size: 13.5px;"><span style="color: #6B6B73;">This payment</span><span style="font-weight: 600;">{{ amountLabel }}</span></div>
+          <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #DCDAD4; display: flex; justify-content: space-between; font-size: 14px;"><span>Balance after</span><span style="font-weight: 700; color: {{ balanceColor }};">{{ balanceAfter }}</span></div>
+        </div>
+        <label style="display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: #4E4E56; cursor: pointer;">
+          <input type="checkbox" checked="{{ sendReceipt }}" onChange="{{ toggleReceipt }}" style="width: 16px; height: 16px; accent-color: #E8462A;" />
+          <span>Send receipt on WhatsApp</span>
+        </label>
+      </div>
+      <div style="padding: 16px 20px; border-top: 1px solid #F0EEE9; display: flex; gap: 8px;">
+        <button onClick="{{ closePayment }}" style="flex: 1; padding: 12px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">Cancel</button>
+        <button onClick="{{ savePayment }}" style="flex: 2; padding: 12px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="opacity: 0.9;">Save payment</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ addMemberOpen }}">
+    <div onClick="{{ closeAddMember }}" style="position: absolute; inset: 0; background: rgba(18,18,21,0.42); backdrop-filter: blur(2px); z-index: 60;"></div>
+  </sc-if>
+  <sc-if value="{{ addMemberOpen }}">
+    <div style="position: absolute; top: 0; right: 0; bottom: 0; width: min(460px, 94%); z-index: 61; background: #FFFFFF; border-left: 1px solid #E8E6E1; box-shadow: -30px 0 60px -40px rgba(20,20,26,0.9); display: flex; flex-direction: column; animation: slideOver 220ms ease both;">
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #F0EEE9;">
+        <div>
+          <div style="font-size: 17px; font-weight: 700; letter-spacing: -0.02em;">Add member</div>
+          <div style="margin-top: 3px; font-size: 12.5px; color: #8A8A90;">Step {{ addStepNum }} of 3 · {{ addStepName }}</div>
+        </div>
+        <button onClick="{{ closeAddMember }}" style="width: 32px; height: 32px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-size: 15px; color: #6B6B73; cursor: pointer;" style-hover="border-color: #16161A; color: #16161A;">✕</button>
+      </div>
+      <div style="padding: 0 20px; display: flex; gap: 5px; margin-top: 16px;">
+        <div style="{{ addBar1 }}"></div>
+        <div style="{{ addBar2 }}"></div>
+        <div style="{{ addBar3 }}"></div>
+      </div>
+
+      <div style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+        <sc-if value="{{ addStep1 }}">
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div style="width: 60px; height: 60px; border-radius: 14px; flex: none; background: repeating-linear-gradient(45deg, #F2F0EB, #F2F0EB 6px, #E8E5DE 6px, #E8E5DE 12px); display: flex; align-items: center; justify-content: center; font-size: 11px; color: #A5A5AA;">PHOTO</div>
+              <button style="padding: 9px 14px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">Take photo</button>
+            </div>
+            <div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">FULL NAME</div>
+              <input value="{{ newName }}" onChange="{{ onNewName }}" placeholder="e.g. Hassan Ahmed" style="margin-top: 8px; width: 100%; padding: 12px 14px; border: 1px solid #E8E6E1; border-radius: 12px; background: #FAF9F6; font-family: Archivo, sans-serif; font-size: 14px; color: #16161A; outline: none;" style-focus="border-color: #16161A; background: #FFFFFF;" />
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+              <div>
+                <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">PHONE</div>
+                <input value="{{ newPhone }}" onChange="{{ onNewPhone }}" placeholder="0300 1234567" style="margin-top: 8px; width: 100%; padding: 12px 14px; border: 1px solid #E8E6E1; border-radius: 12px; background: #FAF9F6; font-family: Archivo, sans-serif; font-size: 14px; color: #16161A; outline: none;" style-focus="border-color: #16161A; background: #FFFFFF;" />
+              </div>
+              <div>
+                <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">CNIC</div>
+                <input placeholder="61101-1234567-1" style="margin-top: 8px; width: 100%; padding: 12px 14px; border: 1px solid #E8E6E1; border-radius: 12px; background: #FAF9F6; font-family: Archivo, sans-serif; font-size: 14px; color: #16161A; outline: none;" style-focus="border-color: #16161A; background: #FFFFFF;" />
+              </div>
+            </div>
+            <div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">HOW DID THEY FIND YOU?</div>
+              <div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <sc-for list="{{ sources }}" as="src" hint-placeholder-count="5">
+                  <button onClick="{{ src.pick }}" style="{{ src.style }}">{{ src.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ addStep2 }}">
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">CHOOSE A PLAN</div>
+              <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 8px;">
+                <sc-for list="{{ planChoices }}" as="pc" hint-placeholder-count="4">
+                  <button onClick="{{ pc.pick }}" style="{{ pc.style }}">
+                    <span style="display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0;">
+                      <span style="font-size: 13.5px; font-weight: 600;">{{ pc.name }}</span>
+                      <span style="font-size: 12px; color: #8A8A90;">{{ pc.duration }}</span>
+                    </span>
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; flex: none;">{{ pc.price }}</span>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+              <div>
+                <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">START DATE</div>
+                <input value="19 Sep 2026" style="margin-top: 8px; width: 100%; padding: 12px 14px; border: 1px solid #E8E6E1; border-radius: 12px; background: #FAF9F6; font-family: Archivo, sans-serif; font-size: 14px; color: #16161A; outline: none;" style-focus="border-color: #16161A; background: #FFFFFF;" />
+              </div>
+              <div>
+                <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">ASSIGN TRAINER</div>
+                <input placeholder="Optional" style="margin-top: 8px; width: 100%; padding: 12px 14px; border: 1px solid #E8E6E1; border-radius: 12px; background: #FAF9F6; font-family: Archivo, sans-serif; font-size: 14px; color: #16161A; outline: none;" style-focus="border-color: #16161A; background: #FFFFFF;" />
+              </div>
+            </div>
+            <div style="padding: 16px; border-radius: 12px; background: #FAF9F6; border: 1px solid #EFEDE8;">
+              <div style="display: flex; justify-content: space-between; font-size: 13.5px;"><span style="color: #6B6B73;">Plan</span><span style="font-weight: 600;">{{ newPlanPrice }}</span></div>
+              <div style="margin-top: 8px; display: flex; justify-content: space-between; font-size: 13.5px;"><span style="color: #6B6B73;">Registration fee</span><span style="font-weight: 600;">Rs 1,000</span></div>
+              <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #DCDAD4; display: flex; justify-content: space-between; font-size: 14px;"><span>Due today</span><span style="font-weight: 700;">{{ newDueToday }}</span></div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ addStep3 }}">
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="padding: 16px; border-radius: 12px; background: #FAF9F6; border: 1px solid #EFEDE8;">
+              <div style="display: flex; justify-content: space-between; font-size: 13.5px;"><span style="color: #6B6B73;">Name</span><span style="font-weight: 600;">{{ newNameLabel }}</span></div>
+              <div style="margin-top: 8px; display: flex; justify-content: space-between; font-size: 13.5px;"><span style="color: #6B6B73;">Phone</span><span style="font-weight: 600;">{{ newPhoneLabel }}</span></div>
+              <div style="margin-top: 8px; display: flex; justify-content: space-between; font-size: 13.5px;"><span style="color: #6B6B73;">Plan</span><span style="font-weight: 600;">{{ newPlan }}</span></div>
+              <div style="margin-top: 8px; display: flex; justify-content: space-between; font-size: 13.5px;"><span style="color: #6B6B73;">Source</span><span style="font-weight: 600;">{{ newSource }}</span></div>
+              <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #DCDAD4; display: flex; justify-content: space-between; font-size: 14px;"><span>Collect now</span><span style="font-weight: 700;">{{ newDueToday }}</span></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <label style="display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: #4E4E56; cursor: pointer;"><input type="checkbox" checked="{{ true }}" style="width: 16px; height: 16px; accent-color: #E8462A;" /><span>Issue digital card &amp; QR straight away</span></label>
+              <label style="display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: #4E4E56; cursor: pointer;"><input type="checkbox" checked="{{ true }}" style="width: 16px; height: 16px; accent-color: #E8462A;" /><span>Send welcome message on WhatsApp</span></label>
+              <label style="display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: #4E4E56; cursor: pointer;"><input type="checkbox" style="width: 16px; height: 16px; accent-color: #E8462A;" /><span>Require signed waiver before first check-in</span></label>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="padding: 16px 20px; border-top: 1px solid #F0EEE9; display: flex; gap: 8px;">
+        <button onClick="{{ addBack }}" style="flex: 1; padding: 12px; border: 1px solid #E8E6E1; border-radius: 10px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="border-color: #16161A;">{{ addBackLabel }}</button>
+        <button onClick="{{ addNext }}" style="flex: 2; padding: 12px; border: 0; border-radius: 10px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="opacity: 0.9;">{{ addNextLabel }}</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ authOpen }}">
+    <div style="position: absolute; inset: 0; z-index: 90; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); background: #F5F4F1; animation: riseIn 200ms ease both;">
+      <div style="padding: 40px; background: #121215; color: #FFFFFF; display: flex; flex-direction: column; justify-content: space-between; gap: 28px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 26px; height: 26px; border-radius: 8px; background: var(--accent);"></div>
+          <span style="font-size: 16px; font-weight: 700;">Repset</span>
+        </div>
+        <div>
+          <div style="font-size: clamp(24px, 3vw, 34px); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em;">Everything your gym does, in one screen.</div>
+          <div style="margin-top: 14px; font-size: 14px; line-height: 1.6; color: #9A9AA2; max-width: 380px;">Members, check-ins, payments and renewals — from the front desk to the profit line.</div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <span style="padding: 7px 12px; border: 1px solid #26262C; border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #9A9AA2;">PKR</span>
+          <span style="padding: 7px 12px; border: 1px solid #26262C; border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #9A9AA2;">WHATSAPP</span>
+          <span style="padding: 7px 12px; border: 1px solid #26262C; border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #9A9AA2;">MULTI-BRANCH</span>
+        </div>
+      </div>
+
+      <div style="padding: 40px; display: flex; align-items: center; justify-content: center;">
+        <div style="width: 100%; max-width: 380px;">
+          <sc-if value="{{ authIsLogin }}">
+            <div>
+              <h2 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.03em;">Sign in</h2>
+              <div style="margin-top: 6px; font-size: 13.5px; color: #6B6B73;">Use the account your gym owner created for you.</div>
+              <div style="margin-top: 22px; display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">EMAIL OR PHONE</div>
+                  <input value="owais@ironhouse.pk" style="margin-top: 8px; width: 100%; padding: 13px 14px; border: 1px solid #E8E6E1; border-radius: 12px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 14px; color: #16161A; outline: none;" style-focus="border-color: #16161A;" />
+                </div>
+                <div>
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">PASSWORD</div>
+                  <input value="••••••••••" type="password" style="margin-top: 8px; width: 100%; padding: 13px 14px; border: 1px solid #E8E6E1; border-radius: 12px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 14px; color: #16161A; outline: none;" style-focus="border-color: #16161A;" />
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 13px;">
+                  <label style="display: flex; align-items: center; gap: 8px; color: #4E4E56; cursor: pointer;"><input type="checkbox" checked="{{ true }}" style="width: 15px; height: 15px; accent-color: #E8462A;" /><span>Keep me signed in</span></label>
+                  <span style="color: var(--accent); cursor: pointer;">Forgot password</span>
+                </div>
+                <button onClick="{{ authTo2fa }}" style="padding: 13px; border: 0; border-radius: 12px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="opacity: 0.9;">Sign in</button>
+                <div style="text-align: center; font-size: 13px; color: #6B6B73;">New gym? <span onClick="{{ authToOnboard }}" style="color: var(--accent); cursor: pointer; font-weight: 600;">Set up your account</span></div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ authIs2fa }}">
+            <div>
+              <h2 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.03em;">Verify it's you</h2>
+              <div style="margin-top: 6px; font-size: 13.5px; color: #6B6B73;">Owner accounts need a code. We sent one to +92 300 •••• 233.</div>
+              <div style="margin-top: 22px; display: flex; gap: 8px;">
+                <input value="4" style="flex: 1; min-width: 0; padding: 16px 0; border: 1px solid #16161A; border-radius: 12px; background: #FFFFFF; font-family: 'IBM Plex Mono', monospace; font-size: 22px; text-align: center; color: #16161A; outline: none;" />
+                <input value="8" style="flex: 1; min-width: 0; padding: 16px 0; border: 1px solid #E8E6E1; border-radius: 12px; background: #FFFFFF; font-family: 'IBM Plex Mono', monospace; font-size: 22px; text-align: center; color: #16161A; outline: none;" />
+                <input value="2" style="flex: 1; min-width: 0; padding: 16px 0; border: 1px solid #E8E6E1; border-radius: 12px; background: #FFFFFF; font-family: 'IBM Plex Mono', monospace; font-size: 22px; text-align: center; color: #16161A; outline: none;" />
+                <input placeholder="•" style="flex: 1; min-width: 0; padding: 16px 0; border: 1px solid #E8E6E1; border-radius: 12px; background: #FFFFFF; font-family: 'IBM Plex Mono', monospace; font-size: 22px; text-align: center; color: #16161A; outline: none;" />
+              </div>
+              <button onClick="{{ authSignIn }}" style="margin-top: 18px; width: 100%; padding: 13px; border: 0; border-radius: 12px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="opacity: 0.9;">Verify and continue</button>
+              <div style="margin-top: 14px; text-align: center; font-size: 13px; color: #6B6B73;">Resend code in 0:24</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ authIsOnboard }}">
+            <div>
+              <h2 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.03em;">Set up your gym</h2>
+              <div style="margin-top: 6px; font-size: 13.5px; color: #6B6B73;">Three things and you're running. Everything else can wait.</div>
+              <div style="margin-top: 22px; display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">GYM NAME</div>
+                  <input placeholder="Iron House Gym" style="margin-top: 8px; width: 100%; padding: 13px 14px; border: 1px solid #E8E6E1; border-radius: 12px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 14px; color: #16161A; outline: none;" style-focus="border-color: #16161A;" />
+                </div>
+                <div>
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">FIRST BRANCH &amp; CITY</div>
+                  <input placeholder="Main branch · Islamabad" style="margin-top: 8px; width: 100%; padding: 13px 14px; border: 1px solid #E8E6E1; border-radius: 12px; background: #FFFFFF; font-family: Archivo, sans-serif; font-size: 14px; color: #16161A; outline: none;" style-focus="border-color: #16161A;" />
+                </div>
+                <div>
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: #8A8A90;">ROUGHLY HOW MANY MEMBERS?</div>
+                  <div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px;">
+                    <span style="padding: 8px 13px; border: 1px solid #E8E6E1; border-radius: 999px; background: #FFFFFF; font-size: 13px;">Under 100</span>
+                    <span style="padding: 8px 13px; border: 1px solid #16161A; border-radius: 999px; background: #16161A; color: #FFFFFF; font-size: 13px;">100–500</span>
+                    <span style="padding: 8px 13px; border: 1px solid #E8E6E1; border-radius: 999px; background: #FFFFFF; font-size: 13px;">500+</span>
+                  </div>
+                </div>
+                <button onClick="{{ authSignIn }}" style="padding: 13px; border: 0; border-radius: 12px; background: var(--accent); color: #FFFFFF; font-family: Archivo, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="opacity: 0.9;">Create gym &amp; start trial</button>
+                <div style="text-align: center; font-size: 13px; color: #6B6B73;">Already have an account? <span onClick="{{ authToLogin }}" style="color: var(--accent); cursor: pointer; font-weight: 600;">Sign in</span></div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toastOpen }}">
+    <div style="position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 70; display: flex; align-items: center; gap: 12px; padding: 13px 18px; border-radius: 12px; background: #16161A; color: #FFFFFF; box-shadow: 0 24px 50px -28px rgba(20,20,26,1); animation: riseIn 200ms ease both;">
+      <span style="width: 8px; height: 8px; border-radius: 50%; background: #7FD2A3;"></span>
+      <span style="font-size: 13.5px;">{{ toastText }}</span>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+</body>
+</html>

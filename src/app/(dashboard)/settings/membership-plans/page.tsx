@@ -17,7 +17,7 @@ export default async function MembershipPlansPage() {
   ]);
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="space-y-5">
       <PageHeader
         title="Membership plans"
         description={`${plans.length} plan${plans.length === 1 ? "" : "s"}`}

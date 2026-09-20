@@ -5,20 +5,26 @@ import { tenantDb, type TenantContext } from "@/lib/prisma";
 import { requirePermission } from "@/lib/permissions";
 import { canCheckIn } from "@/features/attendance/logic";
 import { isExpiredByDate } from "@/features/memberships/logic";
+import { computeBalance, sumMoney } from "@/features/billing/logic";
 import { checkInSchema, checkInByCodeSchema, type CheckInInput, type CheckInByCodeInput } from "@/features/attendance/schema";
 import type { Member } from "@/generated/prisma/client";
 
 export type ActionResult<T> = { success: true; data: T } | { success: false; error: string };
+
+type CheckInDecision =
+  | { decision: "allowed"; attendanceId: string; membership: { planName: string; endDate: Date } | null }
+  | { decision: "denied"; reason: string; membership: { planName: string; endDate: Date } | null };
 
 async function performCheckIn(
   db: ReturnType<typeof tenantDb>,
   ctx: TenantContext,
   member: Member,
   method: "MANUAL" | "QR",
-): Promise<ActionResult<{ id: string }>> {
+): Promise<CheckInDecision> {
   const openMembership = await db.membership.findFirst({
     where: { memberId: member.id, status: { in: ["PENDING", "ACTIVE", "FROZEN"] } },
     orderBy: { startDate: "desc" },
+    include: { plan: { select: { name: true } } },
   });
 
   // Lazy expiry: nothing sweeps memberships to EXPIRED on a schedule yet
@@ -33,12 +39,16 @@ async function performCheckIn(
     where: { memberId: member.id, checkOutAt: null },
   });
 
+  const membership = openMembership
+    ? { planName: openMembership.plan.name, endDate: openMembership.endDate }
+    : null;
+
   const gate = canCheckIn({
     memberStatus: member.status,
     membership: openMembership ? { status: openMembership.status, endDate: openMembership.endDate } : null,
     hasOpenAttendance: !!hasOpenAttendance,
   });
-  if (!gate.allowed) return { success: false, error: gate.reason };
+  if (!gate.allowed) return { decision: "denied", reason: gate.reason, membership };
 
   const attendance = await db.attendance.create({
     data: {
@@ -48,7 +58,7 @@ async function performCheckIn(
       method,
     },
   });
-  return { success: true, data: { id: attendance.id } };
+  return { decision: "allowed", attendanceId: attendance.id, membership };
 }
 
 export async function recordCheckIn(input: CheckInInput): Promise<ActionResult<{ id: string }>> {
@@ -64,16 +74,33 @@ export async function recordCheckIn(input: CheckInInput): Promise<ActionResult<{
   const member = await db.member.findFirst({ where: { id: parsed.data.memberId } });
   if (!member) return { success: false, error: "Member not found" };
 
-  return performCheckIn(db, ctx, member, parsed.data.method ?? "MANUAL");
+  const result = await performCheckIn(db, ctx, member, parsed.data.method ?? "MANUAL");
+  if (result.decision === "denied") return { success: false, error: result.reason };
+  return { success: true, data: { id: result.attendanceId } };
 }
 
 /** Check-in "by code" — the flow for a check-in desk scanner. Real QR/barcode
  * scanners at a gym typically act as keyboard-wedge devices: they decode the
  * code and type it (plus Enter) into whatever input is focused, so a plain
  * text field is the actual scanning UI, not a camera view. */
+export type CheckInOutcome = {
+  decision: "allowed" | "denied";
+  reason: string | null;
+  member: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    memberCode: string;
+    photoUrl: string | null;
+  };
+  membership: { planName: string; endDate: string } | null;
+  outstandingBalance: number;
+  visitsThisWeek: number;
+};
+
 export async function checkInByMemberCode(
   input: CheckInByCodeInput,
-): Promise<ActionResult<{ id: string; memberName: string }>> {
+): Promise<ActionResult<CheckInOutcome>> {
   const ctx = await getTenantContext();
   requirePermission(ctx, "attendance:record");
 
@@ -87,8 +114,41 @@ export async function checkInByMemberCode(
   if (!member) return { success: false, error: "No member found with that code" };
 
   const result = await performCheckIn(db, ctx, member, "QR");
-  if (!result.success) return result;
-  return { success: true, data: { id: result.data.id, memberName: `${member.firstName} ${member.lastName}` } };
+
+  // The desk shows why someone was turned away and what to do about it, so
+  // a denial still needs the member's balance and membership alongside it.
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - 7);
+
+  const [openInvoices, visitsThisWeek] = await Promise.all([
+    db.invoice.findMany({
+      where: { memberId: member.id, status: { in: ["ISSUED", "PARTIALLY_PAID", "OVERDUE"] } },
+      select: { totalAmount: true, amountPaid: true },
+    }),
+    db.attendance.count({ where: { memberId: member.id, checkInAt: { gte: weekStart } } }),
+  ]);
+
+  return {
+    success: true,
+    data: {
+      decision: result.decision,
+      reason: result.decision === "denied" ? result.reason : null,
+      member: {
+        id: member.id,
+        firstName: member.firstName,
+        lastName: member.lastName,
+        memberCode: member.memberCode,
+        photoUrl: member.photoUrl,
+      },
+      membership: result.membership
+        ? { planName: result.membership.planName, endDate: result.membership.endDate.toISOString() }
+        : null,
+      outstandingBalance: sumMoney(
+        openInvoices.map((inv) => computeBalance(Number(inv.totalAmount), Number(inv.amountPaid))),
+      ),
+      visitsThisWeek,
+    },
+  };
 }
 
 export async function recordCheckOut(attendanceId: string): Promise<ActionResult<{ id: string }>> {

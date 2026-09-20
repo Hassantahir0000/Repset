@@ -16,10 +16,10 @@ export default async function BillingOverviewPage() {
   ]);
 
   return (
-    <div className="max-w-4xl space-y-5">
+    <div className="space-y-5">
       <PageHeader title="Billing" description={`${invoices.length} outstanding invoice${invoices.length === 1 ? "" : "s"}`} />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-3 lg:max-w-2xl">
         <KpiTile
           label="Collected this month"
           value={formatMoney(organization.currency, collectedTotal)}

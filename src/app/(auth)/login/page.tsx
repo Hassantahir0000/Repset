@@ -4,10 +4,7 @@ import { useState, type FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { FormField } from "@/components/form-field";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { AuthField, authInputClass } from "@/components/auth-field";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,57 +30,62 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
-          <div className="mx-auto mb-3 h-8 w-8 rounded-lg bg-primary shadow-[0_6px_18px_-6px_rgba(232,70,42,0.8)]" />
-          <h1 className="text-2xl font-bold tracking-tight">Repset</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Sign in to your gym</p>
-        </div>
+    <div>
+      <h1 className="text-2xl font-bold tracking-tight">Sign in</h1>
+      <p className="mt-1.5 text-[13.5px] text-muted-foreground">
+        Use the account your gym owner created for you.
+      </p>
 
-        <Card>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <FormField label="Email">
-                {(id) => (
-                  <Input
-                    id={id}
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                )}
-              </FormField>
+      <form onSubmit={handleSubmit} className="mt-5.5 space-y-3.5">
+        <AuthField label="Email">
+          {(id) => (
+            <input
+              id={id}
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={authInputClass}
+            />
+          )}
+        </AuthField>
 
-              <FormField label="Password">
-                {(id) => (
-                  <Input
-                    id={id}
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                )}
-              </FormField>
+        <AuthField label="Password">
+          {(id) => (
+            <input
+              id={id}
+              type="password"
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={authInputClass}
+            />
+          )}
+        </AuthField>
 
-              {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && (
+          <p className="rounded-xl border border-[#F5CFC5] bg-[#FDF1EE] px-3.5 py-2.5 text-[13px] text-[#C23B22]">
+            {error}
+          </p>
+        )}
 
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? "Signing in..." : "Sign in"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full rounded-[12px] bg-primary px-4 py-3.25 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          {isSubmitting ? "Signing in…" : "Sign in"}
+        </button>
 
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center text-[13px] text-muted-foreground">
           New gym?{" "}
-          <Link href="/register" className="font-medium text-primary hover:underline">
-            Create an organization
+          <Link href="/register" className="font-semibold text-primary hover:underline">
+            Set up your account
           </Link>
         </p>
-      </div>
-    </main>
+      </form>
+    </div>
   );
 }

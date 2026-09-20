@@ -5,10 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createOrganizationWithOwner } from "@/features/organizations/actions";
-import { FormField } from "@/components/form-field";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { AuthField, authInputClass } from "@/components/auth-field";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -56,63 +53,101 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
-          <div className="mx-auto mb-3 h-8 w-8 rounded-lg bg-primary shadow-[0_6px_18px_-6px_rgba(232,70,42,0.8)]" />
-          <h1 className="text-2xl font-bold tracking-tight">Create your gym</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Sets up your organization, first branch, and owner account
+    <div>
+      <h1 className="text-2xl font-bold tracking-tight">Set up your gym</h1>
+      <p className="mt-1.5 text-[13.5px] text-muted-foreground">
+        This creates your organization, its first branch and your owner account.
+      </p>
+
+      <form onSubmit={handleSubmit} className="mt-5.5 space-y-3.5">
+        <AuthField label="Gym name">
+          {(id) => (
+            <input
+              id={id}
+              required
+              placeholder="Iron House Gym"
+              value={form.organizationName}
+              onChange={update("organizationName")}
+              className={authInputClass}
+            />
+          )}
+        </AuthField>
+
+        <AuthField label="First branch">
+          {(id) => (
+            <input
+              id={id}
+              required
+              placeholder="Main Branch"
+              value={form.branchName}
+              onChange={update("branchName")}
+              className={authInputClass}
+            />
+          )}
+        </AuthField>
+
+        <AuthField label="Your name">
+          {(id) => (
+            <input
+              id={id}
+              required
+              autoComplete="name"
+              value={form.ownerName}
+              onChange={update("ownerName")}
+              className={authInputClass}
+            />
+          )}
+        </AuthField>
+
+        <AuthField label="Email">
+          {(id) => (
+            <input
+              id={id}
+              type="email"
+              required
+              autoComplete="email"
+              value={form.ownerEmail}
+              onChange={update("ownerEmail")}
+              className={authInputClass}
+            />
+          )}
+        </AuthField>
+
+        <AuthField label="Password">
+          {(id) => (
+            <input
+              id={id}
+              type="password"
+              required
+              autoComplete="new-password"
+              value={form.ownerPassword}
+              onChange={update("ownerPassword")}
+              className={authInputClass}
+            />
+          )}
+        </AuthField>
+
+        {error && (
+          <p className="rounded-xl border border-[#F5CFC5] bg-[#FDF1EE] px-3.5 py-2.5 text-[13px] text-[#C23B22]">
+            {error}
           </p>
-        </div>
+        )}
 
-        <Card>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <FormField label="Gym / organization name">
-                {(id) => (
-                  <Input id={id} required value={form.organizationName} onChange={update("organizationName")} />
-                )}
-              </FormField>
-              <FormField label="First branch name">
-                {(id) => <Input id={id} required value={form.branchName} onChange={update("branchName")} />}
-              </FormField>
-              <FormField label="Your name">
-                {(id) => <Input id={id} required value={form.ownerName} onChange={update("ownerName")} />}
-              </FormField>
-              <FormField label="Email">
-                {(id) => (
-                  <Input id={id} type="email" required value={form.ownerEmail} onChange={update("ownerEmail")} />
-                )}
-              </FormField>
-              <FormField label="Password">
-                {(id) => (
-                  <Input
-                    id={id}
-                    type="password"
-                    required
-                    value={form.ownerPassword}
-                    onChange={update("ownerPassword")}
-                  />
-                )}
-              </FormField>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full rounded-[12px] bg-primary px-4 py-3.25 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          {isSubmitting ? "Creating…" : "Create gym & start trial"}
+        </button>
 
-              {error && <p className="text-sm text-destructive">{error}</p>}
-
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Create organization"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center text-[13px] text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-primary hover:underline">
+          <Link href="/login" className="font-semibold text-primary hover:underline">
             Sign in
           </Link>
         </p>
-      </div>
-    </main>
+      </form>
+    </div>
   );
 }

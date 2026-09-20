@@ -10,6 +10,7 @@ import { CommandPalette } from "@/components/command-palette";
 import { QuickActionMenu } from "@/components/quick-action-menu";
 import { getRenewalRiskSummary } from "@/features/memberships/queries";
 import { Button } from "@/components/ui/button";
+import { formatMoney } from "@/lib/format";
 
 const NAV_GROUPS: NavGroup[] = [
   {
@@ -81,7 +82,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="grid h-screen grid-cols-[232px_minmax(0,1fr)] bg-background">
       <aside className="flex flex-col gap-1 overflow-y-auto bg-sidebar p-3.5 text-sidebar-foreground">
         <div className="flex items-center gap-2.5 px-1.5 pt-1 pb-4">
-          <div className="h-[26px] w-[26px] flex-none rounded-lg bg-primary shadow-[0_6px_18px_-6px_rgba(232,70,42,0.8)]" />
+          <div className="h-6.5 w-6.5 flex-none rounded-[8px] bg-primary shadow-[0_6px_18px_-6px_rgba(232,70,42,0.8)]" />
           <div className="min-w-0">
             <div className="text-[15px] font-bold tracking-tight text-white">Repset</div>
             <div className="truncate text-[11px] text-[#74747C]">{organization.name}</div>
@@ -99,7 +100,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
                 {renewalRisk.count} renewal{renewalRisk.count === 1 ? "" : "s"} due in {RENEWAL_RISK_WINDOW_DAYS} days
               </div>
               <div className="mt-1 text-[12px] leading-snug text-[#85858D]">
-                {organization.currency} {renewalRisk.totalValue} at risk if nobody follows up.
+                {formatMoney(organization.currency, renewalRisk.totalValue)} at risk if nobody
+                follows up.
               </div>
               <Link
                 href="/members"

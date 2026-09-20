@@ -20,6 +20,7 @@ import {
   membershipProgress,
 } from "@/features/memberships/logic";
 import { formatMoney } from "@/lib/format";
+import { cn } from "cn";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -60,11 +61,13 @@ export function MembershipPanel({
   currentMembership,
   plans,
   currency,
+  outstandingBalance = 0,
 }: {
   memberId: string;
   currentMembership: CurrentMembership;
   plans: Plan[];
   currency: string;
+  outstandingBalance?: number;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -108,23 +111,34 @@ export function MembershipPanel({
               <div className="font-medium">{currentMembership.plan.name}</div>
               <Badge variant={STATUS_VARIANT[currentMembership.status]}>{currentMembership.status}</Badge>
             </div>
-            <div className="mt-2 grid grid-cols-2 gap-2 font-mono text-[11px] text-muted-foreground">
+            <div className="mt-2.5 grid grid-cols-3 gap-2 font-mono text-[10px] tracking-[0.08em] text-muted-foreground uppercase">
               <div>
-                START
-                <div className="mt-0.5 text-[13px] font-medium text-foreground">
+                Started
+                <div className="mt-1 font-sans text-[13px] font-semibold tracking-normal text-foreground normal-case">
                   {formatDate(currentMembership.startDate)}
                 </div>
               </div>
               <div>
                 {currentMembership.status === "ACTIVE" || currentMembership.status === "FROZEN"
-                  ? "EXPIRES"
-                  : "ENDED"}
-                <div className="mt-0.5 text-[13px] font-medium text-foreground">
+                  ? "Expires"
+                  : "Ended"}
+                <div className="mt-1 font-sans text-[13px] font-semibold tracking-normal text-foreground normal-case">
                   {formatDate(currentMembership.endDate)}
                 </div>
               </div>
+              <div>
+                Balance
+                <div
+                  className={cn(
+                    "mt-1 font-sans text-[13px] font-semibold tracking-normal normal-case",
+                    outstandingBalance > 0 ? "text-[#C23B22]" : "text-foreground",
+                  )}
+                >
+                  {outstandingBalance > 0 ? formatMoney(currency, outstandingBalance) : "Settled"}
+                </div>
+              </div>
             </div>
-            <div className="mt-2 font-mono text-[11px] text-muted-foreground">
+            <div className="mt-2.5 font-mono text-[11px] text-muted-foreground">
               PAID {formatMoney(currency, Number(currentMembership.priceAtPurchase))}
             </div>
 

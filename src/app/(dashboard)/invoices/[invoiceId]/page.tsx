@@ -98,6 +98,7 @@ export default async function InvoiceDetailPage({
 
         <PaymentPanel
           invoiceId={invoice.id}
+          invoiceNumber={invoice.invoiceNumber}
           status={invoice.status}
           balance={balance}
           currency={organization.currency}

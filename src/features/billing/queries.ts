@@ -8,7 +8,39 @@ export async function listInvoicesForMember(memberId: string) {
   return db.invoice.findMany({
     where: { memberId },
     orderBy: { issueDate: "desc" },
+    include: {
+      items: { select: { description: true }, take: 1 },
+      payments: { select: { method: true }, orderBy: { paidAt: "desc" }, take: 1 },
+    },
   });
+}
+
+export type OpenInvoice = {
+  id: string;
+  invoiceNumber: string;
+  description: string | null;
+  balance: number;
+};
+
+/** A member's invoices that still carry a balance, oldest first — what a
+ * "take payment" flow should offer to settle. */
+export async function listOpenInvoicesForMember(memberId: string): Promise<OpenInvoice[]> {
+  const ctx = await getTenantContext();
+  const db = tenantDb(ctx);
+  const invoices = await db.invoice.findMany({
+    where: { memberId, status: { in: ["ISSUED", "PARTIALLY_PAID", "OVERDUE"] } },
+    orderBy: { issueDate: "asc" },
+    include: { items: { select: { description: true }, take: 1 } },
+  });
+
+  return invoices
+    .map((inv) => ({
+      id: inv.id,
+      invoiceNumber: inv.invoiceNumber,
+      description: inv.items[0]?.description ?? null,
+      balance: computeBalance(Number(inv.totalAmount), Number(inv.amountPaid)),
+    }))
+    .filter((inv) => inv.balance > 0);
 }
 
 /** Everything a member has actually paid, across all their invoices. */

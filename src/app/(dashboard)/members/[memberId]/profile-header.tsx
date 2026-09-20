@@ -21,7 +21,9 @@ const TAB_LABELS: Record<MemberTab, string> = {
 export function ProfileHeader({
   member,
   activeTab,
+  actions,
 }: {
+  actions?: React.ReactNode;
   member: {
     id: string;
     firstName: string;
@@ -47,7 +49,7 @@ export function ProfileHeader({
       <div className="mt-2.5 overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(20,20,26,0.03)]">
         <div className="h-19 bg-linear-to-r from-[#16161A] to-[#2A2A31]" />
 
-        <div className="px-5 pb-4.5">
+        <div className="flex flex-wrap items-end justify-between gap-4 px-5 pb-4.5">
           <div className="-mt-7.5 flex min-w-0 gap-4">
             <MemberAvatar
               firstName={member.firstName}
@@ -69,6 +71,8 @@ export function ProfileHeader({
               </div>
             </div>
           </div>
+
+          {actions && <div className="flex flex-wrap gap-2 pt-2.5">{actions}</div>}
         </div>
 
         <div className="flex flex-wrap gap-4.5 border-t border-border px-5">

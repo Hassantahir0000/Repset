@@ -123,3 +123,73 @@ export async function listRecentMembers(limit = 5) {
     take: limit,
   });
 }
+
+export type MemberActivityKind = "CHECK_IN" | "PAYMENT" | "MEMBERSHIP";
+
+export type MemberActivity = {
+  id: string;
+  kind: MemberActivityKind;
+  at: Date;
+  summary: string;
+};
+
+/**
+ * A single timeline for the member profile, merged from the events we
+ * actually record: check-ins, payments and membership terms. There is no
+ * audit log table, so this is assembled from those three sources rather
+ * than read from one — each is capped before merging so a member with
+ * thousands of check-ins can't crowd the other kinds out.
+ */
+export async function listMemberActivity(memberId: string, limit = 8): Promise<MemberActivity[]> {
+  const ctx = await getTenantContext();
+  const db = tenantDb(ctx);
+
+  const [attendances, payments, memberships] = await Promise.all([
+    db.attendance.findMany({
+      where: { memberId },
+      orderBy: { checkInAt: "desc" },
+      take: limit,
+      select: { id: true, checkInAt: true },
+    }),
+    db.payment.findMany({
+      where: { memberId },
+      orderBy: { paidAt: "desc" },
+      take: limit,
+      select: { id: true, paidAt: true, amount: true, method: true },
+    }),
+    db.membership.findMany({
+      where: { memberId },
+      orderBy: { startDate: "desc" },
+      take: limit,
+      select: { id: true, startDate: true, status: true, plan: { select: { name: true } } },
+    }),
+  ]);
+
+  const events: MemberActivity[] = [
+    ...attendances.map((a) => ({
+      id: `attendance-${a.id}`,
+      kind: "CHECK_IN" as const,
+      at: a.checkInAt,
+      summary: `Checked in at ${a.checkInAt.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+      })}`,
+    })),
+    ...payments.map((p) => ({
+      id: `payment-${p.id}`,
+      kind: "PAYMENT" as const,
+      at: p.paidAt,
+      summary: `Payment received — ${Number(p.amount).toLocaleString("en-US")} (${p.method
+        .replace("_", " ")
+        .toLowerCase()})`,
+    })),
+    ...memberships.map((m) => ({
+      id: `membership-${m.id}`,
+      kind: "MEMBERSHIP" as const,
+      at: m.startDate,
+      summary: `${m.plan.name} membership started`,
+    })),
+  ];
+
+  return events.sort((a, b) => b.at.getTime() - a.at.getTime()).slice(0, limit);
+}

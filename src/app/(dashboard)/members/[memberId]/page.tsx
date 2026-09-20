@@ -9,7 +9,16 @@ import {
   listAttendanceForMember,
   listAttendanceSince,
 } from "@/features/attendance/queries";
-import { getMemberLifetimeValue, listInvoicesForMember } from "@/features/billing/queries";
+import {
+  getMemberLifetimeValue,
+  listInvoicesForMember,
+  listOpenInvoicesForMember,
+} from "@/features/billing/queries";
+import { listMemberActivity } from "@/features/members/queries";
+import { peakHour, formatHourRange } from "@/features/dashboard/logic";
+import { TakePaymentSheet } from "@/components/take-payment-sheet";
+import { RenewMembershipSheet } from "./renew-membership-sheet";
+import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/format";
 import { MemberForm } from "../member-form";
 import { MembershipPanel } from "./membership-panel";
@@ -65,6 +74,8 @@ export default async function MemberDetailPage({
     heatmapAttendance,
     invoices,
     lifetimeValue,
+    openInvoices,
+    activity,
   ] = await Promise.all([
     listAssignableBranches(),
     getCurrentMembership(memberId),
@@ -76,7 +87,21 @@ export default async function MemberDetailPage({
     listAttendanceSince(memberId, heatmapSince),
     listInvoicesForMember(memberId),
     getMemberLifetimeValue(memberId),
+    listOpenInvoicesForMember(memberId),
+    listMemberActivity(memberId, 6),
   ]);
+
+  const outstandingBalance = openInvoices.reduce((sum, inv) => sum + inv.balance, 0);
+  const planOptions = plans.map((p) => ({
+    id: p.id,
+    name: p.name,
+    durationDays: p.durationDays,
+    price: p.price.toString(),
+    registrationFee: p.registrationFee.toString(),
+  }));
+
+  const usualHour = peakHour(heatmapAttendance.map((a) => a.checkInAt));
+  const visitsPerWeek = (heatmapAttendance.length / (HEATMAP_DAYS / 7)).toFixed(1);
 
   // Editing an existing member should still offer their current branch even
   // if it isn't one the caller could newly assign to (e.g. an OWNER viewing
@@ -104,6 +129,34 @@ export default async function MemberDetailPage({
           branchName: member.branch.name,
         }}
         activeTab={tab}
+        actions={
+          <>
+            <RenewMembershipSheet
+              memberId={member.id}
+              currentMembership={
+                openMembership
+                  ? {
+                      id: openMembership.id,
+                      planId: openMembership.planId,
+                      planName: openMembership.plan.name,
+                    }
+                  : null
+              }
+              plans={planOptions}
+              currency={organization.currency}
+              trigger={
+                <Button>{openMembership ? "Renew membership" : "Sell membership"}</Button>
+              }
+            />
+            {openInvoices.length > 0 && (
+              <TakePaymentSheet
+                invoices={openInvoices}
+                currency={organization.currency}
+                trigger={<Button variant="outline">Take payment</Button>}
+              />
+            )}
+          </>
+        }
       />
 
       {tab === "overview" && (
@@ -125,7 +178,9 @@ export default async function MemberDetailPage({
                     }
                   : null
               }
+              outstandingBalance={outstandingBalance}
             />
+            <MembershipHistory history={history} currency={organization.currency} />
           </div>
 
           <div className="space-y-3.5">
@@ -142,8 +197,34 @@ export default async function MemberDetailPage({
                 days={HEATMAP_DAYS}
                 className="mt-4"
               />
+              <div className="mt-3.5 text-[12.5px] text-muted-foreground">
+                {heatmapAttendance.length === 0
+                  ? "No visits in the last 30 days."
+                  : `${usualHour === null ? "" : `Usually trains ${formatHourRange(usualHour)} · `}${visitsPerWeek} visits per week`}
+              </div>
             </div>
-            <MembershipHistory history={history} currency={organization.currency} />
+
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(20,20,26,0.03)]">
+              <div className="border-b border-border px-4.5 py-3.5 text-[14.5px] font-semibold">
+                Recent activity
+              </div>
+              {activity.length === 0 ? (
+                <div className="px-4.5 py-8 text-center text-sm text-muted-foreground">
+                  Nothing recorded yet.
+                </div>
+              ) : (
+                <ul className="divide-y divide-border">
+                  {activity.map((event) => (
+                    <li key={event.id} className="flex gap-3 px-4.5 py-3 text-[13.5px]">
+                      <span className="flex-none font-mono text-[11px] text-muted-foreground uppercase">
+                        {event.at.toLocaleDateString("en-US", { day: "2-digit", month: "short" })}
+                      </span>
+                      <span className="min-w-0">{event.summary}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -173,6 +254,8 @@ export default async function MemberDetailPage({
               status: inv.status,
               totalAmount: inv.totalAmount,
               amountPaid: Number(inv.amountPaid),
+              description: inv.items[0]?.description ?? null,
+              method: inv.payments[0]?.method ?? null,
             }))}
             currency={organization.currency}
           />

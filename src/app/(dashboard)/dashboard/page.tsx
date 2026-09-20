@@ -3,7 +3,7 @@ import { getTenantContext } from "@/lib/tenant";
 import { rawPrisma } from "@/lib/prisma";
 import { getMemberStatusCounts, listRecentMembers } from "@/features/members/queries";
 import { countTodayAttendance } from "@/features/attendance/queries";
-import { listOutstandingInvoices, getOutstandingBalanceTotal } from "@/features/billing/queries";
+import { listOutstandingInvoices, getOutstandingBalanceTotal, getCollectedTotal } from "@/features/billing/queries";
 import { getCurrentOrganization } from "@/features/organizations/queries";
 import { computeBalance } from "@/features/billing/logic";
 import { KpiTile } from "@/components/kpi-tile";
@@ -20,16 +20,25 @@ function greeting(): string {
 export default async function DashboardPage() {
   const ctx = await getTenantContext();
 
-  const [branchCount, counts, recentMembers, todayCheckIns, outstandingInvoices, outstandingTotal, organization] =
-    await Promise.all([
-      rawPrisma.branch.count({ where: { organizationId: ctx.organizationId } }),
-      getMemberStatusCounts(),
-      listRecentMembers(5),
-      countTodayAttendance(),
-      listOutstandingInvoices(),
-      getOutstandingBalanceTotal(),
-      getCurrentOrganization(),
-    ]);
+  const [
+    branchCount,
+    counts,
+    recentMembers,
+    todayCheckIns,
+    outstandingInvoices,
+    outstandingTotal,
+    collectedTotal,
+    organization,
+  ] = await Promise.all([
+    rawPrisma.branch.count({ where: { organizationId: ctx.organizationId } }),
+    getMemberStatusCounts(),
+    listRecentMembers(5),
+    countTodayAttendance(),
+    listOutstandingInvoices(),
+    getOutstandingBalanceTotal(),
+    getCollectedTotal(),
+    getCurrentOrganization(),
+  ]);
   const topOutstanding = outstandingInvoices.slice(0, 5);
 
   return (
@@ -41,12 +50,17 @@ export default async function DashboardPage() {
         <h1 className="mt-1.5 text-[26px] font-bold tracking-tight">{greeting()}.</h1>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <KpiTile
+          label="Collected this month"
+          value={`${organization.currency} ${collectedTotal}`}
+          hint="All branches"
+          tone="dark"
+        />
         <KpiTile
           label="Total members"
           value={String(counts.total)}
           hint={`${branchCount} ${branchCount === 1 ? "branch" : "branches"}`}
-          tone="dark"
         />
         <KpiTile label="Active" value={String(counts.ACTIVE)} hint="Currently training" />
         <KpiTile label="Frozen" value={String(counts.FROZEN)} hint="Paused memberships" />

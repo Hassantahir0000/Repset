@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { updatePlan } from "@/features/membership-plans/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ export function PlanActiveToggle({ planId, isActive }: { planId: string; isActiv
         setError(result.error);
         return;
       }
+      toast.success(isActive ? "Plan deactivated" : "Plan activated");
       router.refresh();
     });
   }

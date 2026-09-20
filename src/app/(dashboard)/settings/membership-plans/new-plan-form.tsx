@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { createPlan } from "@/features/membership-plans/actions";
 import { FormField } from "@/components/form-field";
 import { Input } from "@/components/ui/input";
@@ -69,6 +70,7 @@ export function NewPlanForm({
       setError(result.error);
       return;
     }
+    toast.success("Plan added");
     setForm({ branchId: "", name: "", durationType: "MONTHLY", durationDays: "30", price: "", registrationFee: "" });
     router.refresh();
   }

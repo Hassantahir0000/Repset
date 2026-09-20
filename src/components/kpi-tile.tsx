@@ -33,9 +33,10 @@ export function KpiTile({
       </div>
       <div
         className={cn(
-          "mt-2.5 text-[28px] font-bold tracking-tight whitespace-nowrap",
+          "mt-2.5 truncate text-[clamp(18px,2.2vw,28px)] font-bold tracking-tight",
           tone === "accent" && "text-[#C23B22]",
         )}
+        title={value}
       >
         {value}
       </div>

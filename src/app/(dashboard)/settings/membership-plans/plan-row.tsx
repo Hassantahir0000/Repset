@@ -10,7 +10,7 @@ type Plan = {
   isActive: boolean;
 };
 
-export function PlanRow({ plan, currency }: { plan: Plan; currency: string }) {
+export function PlanRow({ plan, currency, memberCount }: { plan: Plan; currency: string; memberCount: number }) {
   return (
     <tr className="hover:bg-muted/60">
       <td className="px-4.5 py-2.5 font-medium">{plan.name}</td>
@@ -21,6 +21,7 @@ export function PlanRow({ plan, currency }: { plan: Plan; currency: string }) {
       <td className="px-4.5 py-2.5 font-mono text-xs">
         {currency} {plan.price.toString()}
       </td>
+      <td className="px-4.5 py-2.5 text-muted-foreground">{memberCount}</td>
       <td className="px-4.5 py-2.5">
         <PlanActiveToggle planId={plan.id} isActive={plan.isActive} />
       </td>

@@ -47,3 +47,17 @@ export async function getOutstandingBalanceTotal(): Promise<number> {
     0,
   );
 }
+
+/** Sum of payments recorded since `since` (defaults to the start of the
+ * current calendar month) — the "revenue collected" KPI. */
+export async function getCollectedTotal(since?: Date): Promise<number> {
+  const ctx = await getTenantContext();
+  const db = tenantDb(ctx);
+  const startOfMonth = since ?? new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+  const payments = await db.payment.findMany({
+    where: { paidAt: { gte: startOfMonth } },
+    select: { amount: true },
+  });
+  return payments.reduce((sum, p) => sum + Number(p.amount), 0);
+}

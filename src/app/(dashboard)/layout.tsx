@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
 import { auth, signOut } from "@/lib/auth";
 import { getCurrentOrganization } from "@/features/organizations/queries";
+import { listBranches } from "@/features/branches/queries";
+import { getBranchFilterValue } from "@/lib/branch-filter";
 import { SidebarNav, type NavGroup } from "@/components/sidebar-nav";
+import { BranchSwitcher } from "@/components/branch-switcher";
 import { Button } from "@/components/ui/button";
 
 const NAV_GROUPS: NavGroup[] = [
@@ -33,9 +36,9 @@ function initials(name: string): string {
     .join("");
 }
 
-function roleLabel(role: string, activeBranchId: string | null): string {
+function roleLabel(role: string, branchName: string | null): string {
   const pretty = role.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
-  return activeBranchId ? pretty : `${pretty} · all branches`;
+  return branchName ? `${pretty} · ${branchName}` : `${pretty} · all branches`;
 }
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -45,6 +48,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   const organization = await getCurrentOrganization();
+
+  const isOrgWideRole = session.user.activeBranchId === null;
+  const branches = await listBranches();
+  const branchFilter = isOrgWideRole ? await getBranchFilterValue() : null;
+  const currentBranchId = branchFilter && branches.some((b) => b.id === branchFilter) ? branchFilter : null;
+  const displayBranchId = isOrgWideRole ? currentBranchId : session.user.activeBranchId;
+  const displayBranchName = branches.find((b) => b.id === displayBranchId)?.name ?? null;
 
   return (
     <div className="grid h-screen grid-cols-[232px_minmax(0,1fr)] bg-background">
@@ -68,7 +78,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               {session.user.name}
             </div>
             <div className="truncate text-[11px] text-[#74747C]">
-              {roleLabel(session.user.role, session.user.activeBranchId)}
+              {roleLabel(session.user.role, displayBranchName)}
             </div>
           </div>
         </div>
@@ -76,9 +86,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
       <div className="flex min-w-0 flex-col overflow-hidden">
         <header className="flex flex-none items-center justify-between gap-3 border-b border-border bg-background/85 px-6 py-3 backdrop-blur">
-          <span className="font-mono text-[11px] tracking-[0.06em] text-muted-foreground uppercase">
-            {organization.name}
-          </span>
+          {isOrgWideRole && branches.length > 1 ? (
+            <BranchSwitcher branches={branches} currentBranchId={currentBranchId} />
+          ) : (
+            <span className="font-mono text-[11px] tracking-[0.06em] text-muted-foreground uppercase">
+              {organization.name}
+            </span>
+          )}
           <form
             action={async () => {
               "use server";

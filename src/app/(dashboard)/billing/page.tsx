@@ -1,23 +1,32 @@
 import Link from "next/link";
-import { listOutstandingInvoices, getOutstandingBalanceTotal } from "@/features/billing/queries";
+import { listOutstandingInvoices, getOutstandingBalanceTotal, getCollectedTotal } from "@/features/billing/queries";
 import { getCurrentOrganization } from "@/features/organizations/queries";
 import { computeBalance } from "@/features/billing/logic";
 import { PageHeader } from "@/components/page-header";
+import { KpiTile } from "@/components/kpi-tile";
 import { InvoiceStatusBadge } from "@/components/invoice-status-badge";
 
 export default async function BillingOverviewPage() {
-  const [invoices, totalOutstanding, organization] = await Promise.all([
+  const [invoices, totalOutstanding, collectedTotal, organization] = await Promise.all([
     listOutstandingInvoices(),
     getOutstandingBalanceTotal(),
+    getCollectedTotal(),
     getCurrentOrganization(),
   ]);
 
   return (
     <div className="max-w-4xl space-y-5">
-      <PageHeader
-        title="Billing"
-        description={`${invoices.length} outstanding invoice${invoices.length === 1 ? "" : "s"} · ${organization.currency} ${totalOutstanding} owed`}
-      />
+      <PageHeader title="Billing" description={`${invoices.length} outstanding invoice${invoices.length === 1 ? "" : "s"}`} />
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
+        <KpiTile label="Collected this month" value={`${organization.currency} ${collectedTotal}`} tone="dark" />
+        <KpiTile
+          label="Outstanding"
+          value={`${organization.currency} ${totalOutstanding}`}
+          hint={`${invoices.length} unpaid`}
+          tone="accent"
+        />
+      </div>
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(20,20,26,0.03)]">
         <table className="min-w-full text-sm">

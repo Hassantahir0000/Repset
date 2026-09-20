@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { createMember, updateMember } from "@/features/members/actions";
 import { FormField } from "@/components/form-field";
 import { Input } from "@/components/ui/input";
@@ -94,6 +95,7 @@ export function MemberForm({
       setError(result.error);
       return;
     }
+    toast.success(memberId ? "Member updated" : "Member added");
     router.push(memberId ? `/members/${memberId}` : "/members");
     router.refresh();
   }

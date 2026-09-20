@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { recordPayment, cancelInvoice } from "@/features/billing/actions";
 import { canRecordPayment, canCancelInvoice } from "@/features/billing/logic";
 import { Card, CardContent } from "@/components/ui/card";
@@ -53,6 +54,7 @@ export function PaymentPanel({
         setError(result.error);
         return;
       }
+      toast.success(`${currency} ${amount} recorded — receipt ${result.data.receiptNumber}`);
       router.refresh();
     });
   }
@@ -65,6 +67,7 @@ export function PaymentPanel({
         setError(result.error);
         return;
       }
+      toast.success("Invoice cancelled");
       router.refresh();
     });
   }

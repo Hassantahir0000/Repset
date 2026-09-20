@@ -1,9 +1,11 @@
 "use server";
 
+import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { rawPrisma } from "@/lib/prisma";
 import { getTenantContext } from "@/lib/tenant";
 import { requirePermission } from "@/lib/permissions";
+import { BRANCH_FILTER_COOKIE } from "@/lib/branch-filter";
 import {
   createOrganizationWithOwnerSchema,
   updateOrganizationSchema,
@@ -97,4 +99,31 @@ export async function updateOrganization(
     data: parsed.data,
   });
   return { success: true, data: { id: organization.id } };
+}
+
+/**
+ * Sets or clears the org-wide viewer's branch filter (see src/lib/branch-
+ * filter.ts). Only narrows what an org-wide role sees — validated against
+ * the session's own accessibleBranchIds, so a tampered cookie value can't
+ * grant access to a branch the caller couldn't already reach.
+ */
+export async function setBranchFilter(branchId: string | null): Promise<ActionResult<null>> {
+  const ctx = await getTenantContext();
+  const store = await cookies();
+
+  if (!branchId) {
+    store.delete(BRANCH_FILTER_COOKIE);
+    return { success: true, data: null };
+  }
+
+  // Validated against the org directly (not ctx.accessibleBranchIds, which
+  // may already be narrowed by a *previous* filter value) so switching from
+  // one specific branch straight to another still works.
+  const branch = await rawPrisma.branch.findFirst({ where: { id: branchId, organizationId: ctx.organizationId } });
+  if (!branch) {
+    return { success: false, error: "Branch not found" };
+  }
+
+  store.set(BRANCH_FILTER_COOKIE, branchId, { httpOnly: true, sameSite: "lax", path: "/" });
+  return { success: true, data: null };
 }

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   activateMembership,
   renewMembership,
@@ -65,7 +66,7 @@ export function MembershipPanel({
   const isOpen =
     currentMembership && ["PENDING", "ACTIVE", "FROZEN"].includes(currentMembership.status);
 
-  function run(action: () => Promise<{ success: boolean; error?: string }>) {
+  function run(action: () => Promise<{ success: boolean; error?: string }>, successMessage: string) {
     setError(null);
     startTransition(async () => {
       const result = await action();
@@ -73,6 +74,7 @@ export function MembershipPanel({
         setError(result.error ?? "Something went wrong");
         return;
       }
+      toast.success(successMessage);
       router.refresh();
     });
   }
@@ -114,7 +116,7 @@ export function MembershipPanel({
                   size="sm"
                   variant="outline"
                   disabled={isPending}
-                  onClick={() => run(() => freezeMembership(currentMembership.id))}
+                  onClick={() => run(() => freezeMembership(currentMembership.id), "Membership frozen")}
                 >
                   Freeze
                 </Button>
@@ -124,7 +126,7 @@ export function MembershipPanel({
                   size="sm"
                   variant="outline"
                   disabled={isPending}
-                  onClick={() => run(() => resumeMembership(currentMembership.id))}
+                  onClick={() => run(() => resumeMembership(currentMembership.id), "Membership resumed")}
                 >
                   Resume
                 </Button>
@@ -134,7 +136,9 @@ export function MembershipPanel({
                   size="sm"
                   variant="outline"
                   disabled={isPending}
-                  onClick={() => run(() => renewMembership({ membershipId: currentMembership.id }))}
+                  onClick={() =>
+                    run(() => renewMembership({ membershipId: currentMembership.id }), "Membership renewed — invoice created")
+                  }
                 >
                   Renew
                 </Button>
@@ -144,7 +148,7 @@ export function MembershipPanel({
                   size="sm"
                   variant="ghost"
                   disabled={isPending}
-                  onClick={() => run(() => cancelMembership(currentMembership.id))}
+                  onClick={() => run(() => cancelMembership(currentMembership.id), "Membership cancelled")}
                 >
                   Cancel
                 </Button>
@@ -154,7 +158,7 @@ export function MembershipPanel({
                   size="sm"
                   variant="ghost"
                   disabled={isPending}
-                  onClick={() => run(() => expireMembership(currentMembership.id))}
+                  onClick={() => run(() => expireMembership(currentMembership.id), "Membership marked expired")}
                 >
                   Mark expired
                 </Button>
@@ -185,7 +189,9 @@ export function MembershipPanel({
                 </Select>
                 <Button
                   disabled={isPending || !planId}
-                  onClick={() => run(() => activateMembership({ memberId, planId }))}
+                  onClick={() =>
+                    run(() => activateMembership({ memberId, planId }), "Membership activated — invoice created")
+                  }
                 >
                   Activate membership
                 </Button>

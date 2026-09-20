@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { updateOrganization } from "@/features/organizations/actions";
 import { FormField } from "@/components/form-field";
 import { Input } from "@/components/ui/input";
@@ -16,13 +17,11 @@ export function OrganizationSettingsForm({
   const router = useRouter();
   const [form, setForm] = useState(organization);
   const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    setSaved(false);
     setIsSubmitting(true);
 
     const result = await updateOrganization(form);
@@ -32,7 +31,7 @@ export function OrganizationSettingsForm({
       setError(result.error);
       return;
     }
-    setSaved(true);
+    toast.success("Organization settings saved");
     router.refresh();
   }
 
@@ -78,7 +77,6 @@ export function OrganizationSettingsForm({
           </FormField>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
-          {saved && !error && <p className="text-sm text-[#1F7A4D]">Saved.</p>}
 
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Saving..." : "Save changes"}

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { listMembers } from "@/features/members/queries";
+import { listMembersWithSummary } from "@/features/members/queries";
+import { getCurrentOrganization } from "@/features/organizations/queries";
 import { MemberSearch } from "./member-search";
 import { MemberStatusBadge } from "@/components/member-status-badge";
 import { PageHeader } from "@/components/page-header";
@@ -14,6 +15,18 @@ const STATUS_FILTERS: { label: string; value?: MemberStatus }[] = [
   { label: "Inactive", value: "INACTIVE" },
 ];
 
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function formatRelative(date: Date | null): string {
+  if (!date) return "Never";
+  const days = Math.floor((Date.now() - date.getTime()) / 86_400_000);
+  if (days <= 0) return "Today";
+  if (days === 1) return "Yesterday";
+  return `${days} days ago`;
+}
+
 export default async function MembersPage({
   searchParams,
 }: {
@@ -21,7 +34,10 @@ export default async function MembersPage({
 }) {
   const { q, status } = await searchParams;
   const activeStatus = STATUS_FILTERS.find((f) => f.value === status)?.value;
-  const members = await listMembers(q, activeStatus);
+  const [members, organization] = await Promise.all([
+    listMembersWithSummary(q, activeStatus),
+    getCurrentOrganization(),
+  ]);
 
   return (
     <div className="space-y-5">
@@ -65,10 +81,11 @@ export default async function MembersPage({
           <thead>
             <tr className="border-b border-border bg-muted font-mono text-[10px] tracking-[0.08em] text-muted-foreground uppercase">
               <th className="px-4.5 py-2.5 text-left font-medium">Member</th>
-              <th className="px-4.5 py-2.5 text-left font-medium">Code</th>
-              <th className="px-4.5 py-2.5 text-left font-medium">Branch</th>
-              <th className="px-4.5 py-2.5 text-left font-medium">Phone</th>
+              <th className="px-4.5 py-2.5 text-left font-medium">Plan</th>
               <th className="px-4.5 py-2.5 text-left font-medium">Status</th>
+              <th className="px-4.5 py-2.5 text-left font-medium">Expiry</th>
+              <th className="px-4.5 py-2.5 text-left font-medium">Balance</th>
+              <th className="px-4.5 py-2.5 text-left font-medium">Last visit</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -85,22 +102,37 @@ export default async function MembersPage({
                         {member.lastName[0]}
                       </span>
                     )}
-                    <span className="font-medium text-foreground">
-                      {member.firstName} {member.lastName}
+                    <span className="min-w-0">
+                      <span className="block truncate font-medium text-foreground">
+                        {member.firstName} {member.lastName}
+                      </span>
+                      <span className="block font-mono text-[11px] text-muted-foreground">{member.memberCode}</span>
                     </span>
                   </Link>
                 </td>
-                <td className="px-4.5 py-2.5 font-mono text-xs text-muted-foreground">{member.memberCode}</td>
-                <td className="px-4.5 py-2.5 text-muted-foreground">{member.branch.name}</td>
-                <td className="px-4.5 py-2.5 text-muted-foreground">{member.phone}</td>
+                <td className="px-4.5 py-2.5 text-muted-foreground">
+                  {member.currentMembership?.planName ?? "—"}
+                </td>
                 <td className="px-4.5 py-2.5">
                   <MemberStatusBadge status={member.status} />
                 </td>
+                <td className="px-4.5 py-2.5 font-mono text-xs text-muted-foreground">
+                  {member.currentMembership ? formatDate(member.currentMembership.endDate) : "—"}
+                </td>
+                <td
+                  className={cn(
+                    "px-4.5 py-2.5 font-mono text-xs",
+                    member.outstandingBalance > 0 ? "font-medium text-[#C23B22]" : "text-muted-foreground",
+                  )}
+                >
+                  {member.outstandingBalance > 0 ? `${organization.currency} ${member.outstandingBalance}` : "—"}
+                </td>
+                <td className="px-4.5 py-2.5 text-muted-foreground">{formatRelative(member.lastVisit)}</td>
               </tr>
             ))}
             {members.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4.5 py-10 text-center text-muted-foreground">
+                <td colSpan={6} className="px-4.5 py-10 text-center text-muted-foreground">
                   No members match that.
                 </td>
               </tr>

@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { createBranch } from "@/features/branches/actions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ export function NewBranchForm() {
       setError(result.error);
       return;
     }
+    toast.success("Branch added");
     setForm({ name: "", address: "", phone: "" });
     router.refresh();
   }

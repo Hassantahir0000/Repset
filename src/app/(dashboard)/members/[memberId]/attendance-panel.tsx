@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { recordCheckIn, recordCheckOut } from "@/features/attendance/actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ export function AttendancePanel({
         setError(result.error);
         return;
       }
+      toast.success("Checked in");
       router.refresh();
     });
   }
@@ -56,6 +58,7 @@ export function AttendancePanel({
         setError(result.error);
         return;
       }
+      toast.success("Checked out");
       router.refresh();
     });
   }

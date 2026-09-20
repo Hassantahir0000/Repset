@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { updateBranch } from "@/features/branches/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ export function BranchRow({
         setError(result.error);
         return;
       }
+      toast.success(branch.isActive ? "Branch deactivated" : "Branch activated");
       router.refresh();
     });
   }

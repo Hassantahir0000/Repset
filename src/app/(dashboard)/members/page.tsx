@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { listMembersWithSummary } from "@/features/members/queries";
 import { getCurrentOrganization } from "@/features/organizations/queries";
+import { listAssignableBranches } from "@/features/branches/queries";
+import { listActivePlansForAssignment } from "@/features/membership-plans/queries";
 import { MemberSearch } from "./member-search";
+import { AddMemberSheet } from "./add-member-sheet";
 import { MemberStatusBadge } from "@/components/member-status-badge";
 import { PageHeader } from "@/components/page-header";
-import { Button } from "@/components/ui/button";
 import type { MemberStatus } from "@/generated/prisma/enums";
 import { cn } from "cn";
 
@@ -34,9 +36,11 @@ export default async function MembersPage({
 }) {
   const { q, status } = await searchParams;
   const activeStatus = STATUS_FILTERS.find((f) => f.value === status)?.value;
-  const [members, organization] = await Promise.all([
+  const [members, organization, branches, plans] = await Promise.all([
     listMembersWithSummary(q, activeStatus),
     getCurrentOrganization(),
+    listAssignableBranches(),
+    listActivePlansForAssignment(),
   ]);
 
   return (
@@ -45,9 +49,17 @@ export default async function MembersPage({
         title="Members"
         description={`${members.length} shown`}
         actions={
-          <Button asChild>
-            <Link href="/members/new">+ Add member</Link>
-          </Button>
+          <AddMemberSheet
+            branches={branches}
+            plans={plans.map((p) => ({
+              id: p.id,
+              name: p.name,
+              durationDays: p.durationDays,
+              price: p.price.toString(),
+              registrationFee: p.registrationFee.toString(),
+            }))}
+            currency={organization.currency}
+          />
         }
       />
 

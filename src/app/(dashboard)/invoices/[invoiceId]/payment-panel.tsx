@@ -4,19 +4,32 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { recordPayment, cancelInvoice } from "@/features/billing/actions";
-import { canRecordPayment, canCancelInvoice } from "@/features/billing/logic";
-import { Card, CardContent } from "@/components/ui/card";
+import { canRecordPayment, canCancelInvoice, computeBalance } from "@/features/billing/logic";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/form-field";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetBody,
+  SheetFooter,
+  SheetClose,
+} from "@/components/ui/sheet";
+import { formatMoney } from "@/lib/format";
+import { cn } from "cn";
 import type { InvoiceStatus, PaymentMethod } from "@/generated/prisma/enums";
+
+const METHODS: { value: PaymentMethod; label: string }[] = [
+  { value: "CASH", label: "Cash" },
+  { value: "CARD", label: "Card" },
+  { value: "BANK_TRANSFER", label: "Bank transfer" },
+  { value: "ONLINE", label: "Online" },
+  { value: "OTHER", label: "Other" },
+];
 
 type PaymentItem = {
   id: string;
@@ -42,9 +55,24 @@ export function PaymentPanel({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState(String(balance));
   const [method, setMethod] = useState<PaymentMethod>("CASH");
   const [notes, setNotes] = useState("");
+
+  // Settling in full is the common case, so it leads; the halves are there
+  // for the part-payment conversations that actually happen at the desk.
+  const quickAmounts = Array.from(
+    new Set([balance, Math.round(balance / 2)].filter((v) => v > 0)),
+  );
+
+  function onOpenChange(next: boolean) {
+    setOpen(next);
+    if (next) {
+      setError(null);
+      setAmount(String(balance));
+    }
+  }
 
   function handleRecordPayment() {
     setError(null);
@@ -54,7 +82,11 @@ export function PaymentPanel({
         setError(result.error);
         return;
       }
-      toast.success(`${currency} ${amount} recorded — receipt ${result.data.receiptNumber}`);
+      setOpen(false);
+      setNotes("");
+      toast.success(
+        `${formatMoney(currency, Number(amount))} recorded — receipt ${result.data.receiptNumber}`,
+      );
       router.refresh();
     });
   }
@@ -72,58 +104,134 @@ export function PaymentPanel({
     });
   }
 
+  const balanceAfter = computeBalance(balance, Number(amount) || 0);
+
   return (
     <div className="space-y-5">
       {canRecordPayment(status) && (
-        <Card>
-          <CardContent className="space-y-3">
-            <div className="text-[14.5px] font-semibold">Record payment</div>
-            <FormField label={`Amount (${currency})`}>
-              {(id) => (
-                <Input
-                  id={id}
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                />
-              )}
-            </FormField>
-            <FormField label="Method">
-              {() => (
-                <Select value={method} onValueChange={(v) => setMethod(v as PaymentMethod)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="CASH">Cash</SelectItem>
-                    <SelectItem value="CARD">Card</SelectItem>
-                    <SelectItem value="BANK_TRANSFER">Bank transfer</SelectItem>
-                    <SelectItem value="ONLINE">Online</SelectItem>
-                    <SelectItem value="OTHER">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            </FormField>
-            <FormField label="Notes (optional)">
-              {(id) => <Input id={id} value={notes} onChange={(e) => setNotes(e.target.value)} />}
-            </FormField>
+        <div className="flex flex-wrap items-center gap-2">
+          <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetTrigger asChild>
+              <Button>Record payment</Button>
+            </SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <div>
+                  <SheetTitle>Record payment</SheetTitle>
+                  <SheetDescription>
+                    {formatMoney(currency, balance)} outstanding on this invoice
+                  </SheetDescription>
+                </div>
+                <SheetClose asChild>
+                  <Button variant="outline" size="icon" aria-label="Close">
+                    ✕
+                  </Button>
+                </SheetClose>
+              </SheetHeader>
 
-            {error && <p className="text-sm text-destructive">{error}</p>}
+              <SheetBody>
+                <div>
+                  <div className="font-mono text-[10px] tracking-[0.08em] text-muted-foreground uppercase">
+                    Amount ({currency})
+                  </div>
+                  <input
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    inputMode="decimal"
+                    aria-label={`Amount in ${currency}`}
+                    className="mt-2 w-full rounded-xl border border-border bg-muted/40 px-4 py-3.5 text-2xl font-bold tracking-tight outline-none focus:border-foreground focus:bg-card"
+                  />
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {quickAmounts.map((value) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setAmount(String(value))}
+                        className="rounded-full border border-border px-3 py-1.5 text-[12.5px] hover:border-foreground"
+                      >
+                        {value.toLocaleString("en-US")}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-            <div className="flex items-center gap-2">
-              <Button disabled={isPending} onClick={handleRecordPayment}>
-                Record payment
-              </Button>
-              {canCancelInvoice(status) && (
-                <Button variant="ghost" disabled={isPending} onClick={handleCancel}>
-                  Cancel invoice
+                <div>
+                  <div className="font-mono text-[10px] tracking-[0.08em] text-muted-foreground uppercase">
+                    Method
+                  </div>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    {METHODS.map(({ value, label }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setMethod(value)}
+                        className={cn(
+                          "rounded-[10px] border px-3 py-2.5 text-[13px] font-semibold",
+                          method === value
+                            ? "border-foreground bg-foreground text-background"
+                            : "border-border bg-card hover:border-foreground",
+                        )}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <FormField label="Notes (optional)">
+                  {(id) => <Input id={id} value={notes} onChange={(e) => setNotes(e.target.value)} />}
+                </FormField>
+
+                <div className="rounded-xl border border-border bg-muted/40 p-4 text-[13.5px]">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Outstanding before</span>
+                    <span className="font-semibold">{formatMoney(currency, balance)}</span>
+                  </div>
+                  <div className="mt-2 flex justify-between">
+                    <span className="text-muted-foreground">This payment</span>
+                    <span className="font-semibold">
+                      {formatMoney(currency, Number(amount) || 0)}
+                    </span>
+                  </div>
+                  <div className="mt-2.5 flex justify-between border-t border-dashed border-border pt-2.5 text-sm">
+                    <span>Balance after</span>
+                    <span
+                      className={cn(
+                        "font-bold",
+                        balanceAfter === 0 ? "text-[#1F7A4D]" : "text-[#C23B22]",
+                      )}
+                    >
+                      {balanceAfter === 0 ? "Settled" : formatMoney(currency, balanceAfter)}
+                    </span>
+                  </div>
+                </div>
+
+                {error && <p className="text-sm text-destructive">{error}</p>}
+              </SheetBody>
+
+              <SheetFooter>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setOpen(false)}
+                  disabled={isPending}
+                >
+                  Cancel
                 </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                <Button className="flex-2" disabled={isPending} onClick={handleRecordPayment}>
+                  Save payment
+                </Button>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
+
+          {canCancelInvoice(status) && (
+            <Button variant="ghost" disabled={isPending} onClick={handleCancel}>
+              Cancel invoice
+            </Button>
+          )}
+          {error && !open && <p className="text-sm text-destructive">{error}</p>}
+        </div>
       )}
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(20,20,26,0.03)]">
@@ -141,9 +249,7 @@ export function PaymentPanel({
                     {p.method.replace("_", " ").toLowerCase()}
                   </div>
                 </div>
-                <div className="font-medium">
-                  {currency} {p.amount}
-                </div>
+                <div className="font-medium">{formatMoney(currency, Number(p.amount))}</div>
               </li>
             ))}
           </ul>

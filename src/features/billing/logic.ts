@@ -14,6 +14,12 @@ function fromCents(cents: number): number {
   return cents / 100;
 }
 
+/** Adds money amounts in cents so long lists of prices don't accumulate
+ * float drift the way repeated `+` on decimals does. */
+export function sumMoney(amounts: number[]): number {
+  return fromCents(amounts.reduce((sum, amount) => sum + toCents(amount), 0));
+}
+
 export type InvoiceLineInput = { quantity: number; unitPrice: number };
 
 export function computeLineAmount(line: InvoiceLineInput): number {

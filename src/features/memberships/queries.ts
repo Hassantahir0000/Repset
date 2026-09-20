@@ -36,6 +36,7 @@ export type ExpiringMembership = {
   id: string;
   memberId: string;
   memberName: string;
+  photoUrl: string | null;
   planName: string;
   endDate: Date;
 };
@@ -51,7 +52,10 @@ export async function listExpiringMemberships(withinDays: number, limit = 5): Pr
 
   const rows = await db.membership.findMany({
     where: { status: "ACTIVE", endDate: { gte: now, lte: horizon } },
-    include: { member: { select: { firstName: true, lastName: true } }, plan: { select: { name: true } } },
+    include: {
+      member: { select: { firstName: true, lastName: true, photoUrl: true } },
+      plan: { select: { name: true } },
+    },
     orderBy: { endDate: "asc" },
     take: limit,
   });
@@ -60,6 +64,7 @@ export async function listExpiringMemberships(withinDays: number, limit = 5): Pr
     id: r.id,
     memberId: r.memberId,
     memberName: `${r.member.firstName} ${r.member.lastName}`,
+    photoUrl: r.member.photoUrl,
     planName: r.plan.name,
     endDate: r.endDate,
   }));

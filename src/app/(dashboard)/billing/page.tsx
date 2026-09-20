@@ -5,6 +5,7 @@ import { computeBalance } from "@/features/billing/logic";
 import { PageHeader } from "@/components/page-header";
 import { KpiTile } from "@/components/kpi-tile";
 import { InvoiceStatusBadge } from "@/components/invoice-status-badge";
+import { formatMoney } from "@/lib/format";
 
 export default async function BillingOverviewPage() {
   const [invoices, totalOutstanding, collectedTotal, organization] = await Promise.all([
@@ -19,12 +20,16 @@ export default async function BillingOverviewPage() {
       <PageHeader title="Billing" description={`${invoices.length} outstanding invoice${invoices.length === 1 ? "" : "s"}`} />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
-        <KpiTile label="Collected this month" value={`${organization.currency} ${collectedTotal}`} tone="dark" />
+        <KpiTile
+          label="Collected this month"
+          value={formatMoney(organization.currency, collectedTotal)}
+          tone="dark"
+        />
         <KpiTile
           label="Outstanding"
-          value={`${organization.currency} ${totalOutstanding}`}
+          value={formatMoney(organization.currency, totalOutstanding)}
           hint={`${invoices.length} unpaid`}
-          tone="accent"
+          tone={totalOutstanding > 0 ? "accent" : "default"}
         />
       </div>
 

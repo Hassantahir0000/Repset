@@ -6,12 +6,14 @@ export function KpiTile({
   hint,
   tone = "default",
   className,
+  children,
 }: {
   label: string;
   value: string;
   hint?: string;
   tone?: "default" | "dark" | "accent";
   className?: string;
+  children?: React.ReactNode;
 }) {
   return (
     <div
@@ -45,6 +47,7 @@ export function KpiTile({
           {hint}
         </div>
       )}
+      {children}
     </div>
   );
 }

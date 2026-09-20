@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/page-header";
 import { InvoiceStatusBadge } from "@/components/invoice-status-badge";
 import { PaymentPanel } from "./payment-panel";
 import { PrintButton } from "./print-button";
+import { formatMoney } from "@/lib/format";
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
@@ -75,19 +76,19 @@ export default async function InvoiceDetailPage({
               <div className="flex justify-between font-semibold">
                 <span>TOTAL</span>
                 <span>
-                  {organization.currency} {invoice.totalAmount.toString()}
+                  {formatMoney(organization.currency, Number(invoice.totalAmount))}
                 </span>
               </div>
               <div className="mt-1 flex justify-between">
                 <span>Paid</span>
                 <span>
-                  {organization.currency} {invoice.amountPaid.toString()}
+                  {formatMoney(organization.currency, Number(invoice.amountPaid))}
                 </span>
               </div>
               <div className="flex justify-between font-semibold">
                 <span>Balance</span>
                 <span className={balance > 0 ? "text-[#C23B22]" : "text-[#1F7A4D]"}>
-                  {organization.currency} {balance}
+                  {formatMoney(organization.currency, balance)}
                 </span>
               </div>
             </div>

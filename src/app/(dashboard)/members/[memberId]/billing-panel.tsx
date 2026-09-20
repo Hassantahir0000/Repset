@@ -2,6 +2,7 @@ import Link from "next/link";
 import { InvoiceStatusBadge } from "@/components/invoice-status-badge";
 import { computeBalance } from "@/features/billing/logic";
 import type { InvoiceStatus } from "@/generated/prisma/enums";
+import { formatMoney } from "@/lib/format";
 
 type InvoiceItem = {
   id: string;
@@ -31,10 +32,10 @@ export function BillingPanel({ invoices, currency }: { invoices: InvoiceItem[]; 
                   <div>
                     <div className="font-mono text-xs text-muted-foreground">{invoice.invoiceNumber}</div>
                     <div className="font-medium">
-                      {currency} {invoice.totalAmount.toString()}
+                      {formatMoney(currency, total)}
                       {balance > 0 && (
                         <span className="ml-2 text-xs font-normal text-[#C23B22]">
-                          {currency} {balance} due
+                          {formatMoney(currency, balance)} due
                         </span>
                       )}
                     </div>

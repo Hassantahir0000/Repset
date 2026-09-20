@@ -5,6 +5,7 @@ import { listAssignableBranches } from "@/features/branches/queries";
 import { listActivePlansForAssignment } from "@/features/membership-plans/queries";
 import { MemberSearch } from "./member-search";
 import { AddMemberSheet } from "./add-member-sheet";
+import { formatMoney } from "@/lib/format";
 import { MemberStatusBadge } from "@/components/member-status-badge";
 import { PageHeader } from "@/components/page-header";
 import type { MemberStatus } from "@/generated/prisma/enums";
@@ -137,7 +138,9 @@ export default async function MembersPage({
                     member.outstandingBalance > 0 ? "font-medium text-[#C23B22]" : "text-muted-foreground",
                   )}
                 >
-                  {member.outstandingBalance > 0 ? `${organization.currency} ${member.outstandingBalance}` : "—"}
+                  {member.outstandingBalance > 0
+                    ? formatMoney(organization.currency, member.outstandingBalance)
+                    : "—"}
                 </td>
                 <td className="px-4.5 py-2.5 text-muted-foreground">{formatRelative(member.lastVisit)}</td>
               </tr>

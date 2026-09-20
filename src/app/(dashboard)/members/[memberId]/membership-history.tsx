@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import type { MembershipStatus } from "@/generated/prisma/enums";
+import { formatMoney } from "@/lib/format";
 
 const STATUS_VARIANT: Record<MembershipStatus, "success" | "info" | "secondary" | "destructive" | "warning"> = {
   ACTIVE: "success",
@@ -32,7 +33,7 @@ export function MembershipHistory({ history, currency }: { history: HistoryItem[
               <div className="font-mono text-[11px] text-muted-foreground">
                 {m.startDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} &rarr;{" "}
                 {m.endDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} &middot;{" "}
-                {currency} {m.priceAtPurchase.toString()}
+                {formatMoney(currency, Number(m.priceAtPurchase))}
               </div>
             </div>
             <Badge variant={STATUS_VARIANT[m.status]}>{m.status}</Badge>

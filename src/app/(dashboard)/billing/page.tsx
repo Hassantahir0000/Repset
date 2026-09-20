@@ -60,10 +60,10 @@ export default async function BillingOverviewPage() {
                     </Link>
                   </td>
                   <td className="px-4.5 py-2.5 font-mono text-xs text-muted-foreground">
-                    {organization.currency} {invoice.totalAmount.toString()}
+                    {formatMoney(organization.currency, Number(invoice.totalAmount))}
                   </td>
                   <td className="px-4.5 py-2.5 font-mono text-xs font-medium text-[#C23B22]">
-                    {organization.currency} {balance}
+                    {formatMoney(organization.currency, balance)}
                   </td>
                   <td className="px-4.5 py-2.5">
                     <InvoiceStatusBadge status={invoice.status} />

@@ -1,4 +1,5 @@
 import { PlanActiveToggle } from "./plan-active-toggle";
+import { formatMoney } from "@/lib/format";
 
 type Plan = {
   id: string;
@@ -19,7 +20,7 @@ export function PlanRow({ plan, currency, memberCount }: { plan: Plan; currency:
         {plan.durationDays} days ({plan.durationType.toLowerCase()})
       </td>
       <td className="px-4.5 py-2.5 font-mono text-xs">
-        {currency} {plan.price.toString()}
+        {formatMoney(currency, Number(plan.price))}
       </td>
       <td className="px-4.5 py-2.5 text-muted-foreground">{memberCount}</td>
       <td className="px-4.5 py-2.5">
